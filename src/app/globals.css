@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/*
+  Фирменный шрифт Kaida — Random Grotesque — пока не предоставлен (нет .woff2 файлов).
+  Когда шрифт будет получен: положить файлы в /public/fonts и добавить @font-face
+  с font-family: "Random Grotesque" выше — вся типографика подхватит его автоматически,
+  т.к. --font-display уже стоит первым в стеке ниже.
+*/
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b0f19;
+  --kaida-blue: #1436cd;
+  --kaida-blue-dark: #0f2899;
+  --kaida-blue-soft: #3b5bf0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-kaida: var(--kaida-blue);
+  --color-kaida-dark: var(--kaida-blue-dark);
+  --color-kaida-soft: var(--kaida-blue-soft);
+  --font-display: "Random Grotesque", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Random Grotesque", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ---------- Scroll reveal (IntersectionObserver-driven) ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Load-in animations ---------- */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---------- Hover lift for cards ---------- */
+
+.hover-lift {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .animate-fade-up,
+  .animate-scale-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .hover-lift {
+    transition: none !important;
+  }
+
+  .hover-lift:hover {
+    transform: none !important;
+  }
+}
