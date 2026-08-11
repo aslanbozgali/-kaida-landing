@@ -10,33 +10,33 @@ export default function HowItWorks() {
           <span className="inline-flex items-center rounded-full bg-[#eef1fd] px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#1436CD]">
             Как работает Kaida App
           </span>
-          <h2 className="mx-auto mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl">
+          <h2 className="mx-auto mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl max-md:text-[2.25rem] max-md:font-extrabold max-md:leading-[1.1] max-md:tracking-[-0.01em]">
             Получить скидку занимает меньше минуты
           </h2>
         </Reveal>
 
-        <div className="relative mt-16">
+        <div className="relative mt-16 max-md:mt-10">
           <div
             aria-hidden
             className="pointer-events-none absolute left-[12%] right-[12%] top-5 hidden border-t border-dashed border-[#1436CD]/25 lg:block"
           />
 
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 max-md:gap-12">
             {howItWorks.map((item, i) => (
               <Reveal key={item.step} delay={i * 110}>
                 <div className="hover-lift flex flex-col items-center text-center">
-                  <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#1436CD] text-base font-semibold text-white">
+                  <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#1436CD] text-base font-semibold text-white max-md:h-12 max-md:w-12 max-md:text-lg max-md:shadow-[0_15px_30px_-12px_rgba(20,54,205,0.5)]">
                     {item.step}
                   </span>
-                  <h3 className="mt-4 text-lg font-semibold text-[#0b0f19]">
+                  <h3 className="mt-4 text-lg font-semibold text-[#0b0f19] max-md:mt-5 max-md:text-xl max-md:font-bold">
                     {item.title}
                   </h3>
-                  <p className="mt-1.5 max-w-[220px] text-sm leading-relaxed text-black/55">
+                  <p className="mt-1.5 max-w-[220px] text-sm leading-relaxed text-black/55 max-md:mt-2 max-md:max-w-[260px] max-md:text-base">
                     {item.description}
                   </p>
 
-                  <div className="relative mt-6 w-full max-w-[220px]">
-                    <div className="overflow-hidden rounded-[2rem] border-[5px] border-[#0b0f19] bg-[#0b0f19] shadow-[0_25px_50px_-20px_rgba(11,15,25,0.35)]">
+                  <div className="relative mt-6 w-full max-w-[220px] max-md:mt-7 max-md:max-w-[260px]">
+                    <div className="overflow-hidden rounded-[2rem] border-[5px] border-[#0b0f19] bg-[#0b0f19] shadow-[0_25px_50px_-20px_rgba(11,15,25,0.35)] max-md:rounded-[2.25rem] max-md:shadow-[0_30px_60px_-22px_rgba(11,15,25,0.4)]">
                       <Image
                         src={item.image}
                         alt={item.title}

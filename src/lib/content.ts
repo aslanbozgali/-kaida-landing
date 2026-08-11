@@ -37,7 +37,7 @@ export const whyKaida = [
     icon: "tag" as IconKey,
     value: "220+",
     title: "акций",
-    description: "Скидки, подарки и специальные предложения от партнёров Kaida.",
+    description: "Скидки, подарки и специальные предложения от партнёров Kaida App.",
   },
   {
     icon: "percent" as IconKey,
@@ -109,7 +109,7 @@ export const offerTypes = [
 ] as const;
 
 export const subscriptionBenefits = [
-  "Доступ ко всем акциям партнёров Kaida",
+  "Доступ ко всем акциям партнёров Kaida App",
   "Скидки до 30% в каждом заведении",
   "Подарки от партнёров при выполнении условий",
   "Активация предложений прямо в заведении по QR-коду",
@@ -140,11 +140,11 @@ export const pricingPlans = [
  * новые названия не придумывать. Логотип указан там, где файл предоставлен пользователем —
  * остальные партнёры пока отображаются как typography-аватар (первая буква названия).
  */
-export const partners = [
+export const partners: { name: string; logo: string | null }[] = [
   { name: "Mogol Coffee", logo: "/partners/mogol.png" },
   { name: "Point bowling bar & karaoke", logo: "/partners/point-bowling.png" },
   { name: "Jide", logo: "/partners/jide.png" },
-  { name: "Tokki", logo: null },
+  { name: "Tokki", logo: "/partners/tokki.png" },
   { name: "Grill Town", logo: "/partners/grill-town.png" },
   { name: "Gaia", logo: "/partners/gaia.png" },
   { name: "Pantone", logo: "/partners/pantone.png" },
@@ -154,8 +154,8 @@ export const partners = [
   { name: "Pacman Game Center", logo: "/partners/pacman.png" },
   { name: "Ochag Cafe & Lounge", logo: "/partners/ochag.png" },
   { name: "Odyssey Bar & Kitchen", logo: "/partners/odyssey.png" },
-  { name: "Harat's Irish Pub", logo: "/partners/harats.png" },
-] as const;
+  { name: "Harat's Irish Pub", logo: "/partners/harats.png.jpg" },
+];
 
 /** Отзывы пользователей — подтверждены пользователем как реальные (CLAUDE.md). */
 export const testimonials = [

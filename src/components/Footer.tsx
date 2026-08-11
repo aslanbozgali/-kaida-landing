@@ -4,20 +4,20 @@ import { nav } from "@/lib/content";
 export default function Footer() {
   return (
     <footer className="bg-white px-5 pb-5 pt-24 sm:px-8 sm:pt-32">
-      <div className="mx-auto max-w-6xl rounded-[2.5rem] bg-[#f0efec] px-8 py-12 sm:px-14 sm:py-16">
-        <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mx-auto max-w-6xl rounded-[2.5rem] bg-[#f0efec] px-8 py-12 sm:px-14 sm:py-16 max-md:rounded-[2.25rem] max-md:px-6 max-md:py-10 max-md:shadow-[0_30px_60px_-32px_rgba(11,15,25,0.18)]">
+        <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between max-md:gap-9">
           <div>
             <div className="flex items-center gap-2">
               <Image
                 src="/brand/logo-blue.png"
-                alt="Kaida"
+                alt="Kaida App"
                 width={28}
                 height={28}
                 className="h-7 w-7"
                 unoptimized
               />
               <span className="text-xl font-semibold tracking-tight text-[#0b0f19]">
-                kaida
+                Kaida App
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-black/45">

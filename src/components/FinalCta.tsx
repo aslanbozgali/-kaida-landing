@@ -18,11 +18,11 @@ export default function FinalCta() {
             <span className="inline-flex items-center rounded-full bg-[#eef1fd] px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#1436CD]">
               Kaida App
             </span>
-            <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl">
+            <h2 className="mt-5 text-4xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl max-md:text-[2.5rem] max-md:font-extrabold max-md:leading-[1.08] max-md:tracking-[-0.01em]">
               Город становится выгоднее вместе с{" "}
-              <span className="text-[#1436CD]">Kaida</span>
+              <span className="text-[#1436CD]">Kaida App</span>
             </h2>
-            <p className="mt-5 max-w-md text-lg leading-relaxed text-black/55">
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-black/55 max-md:text-base">
               Скачай приложение и открой скидки, подарки и специальные
               предложения более чем в{" "}
               <span className="font-semibold text-[#1436CD]">100</span>{" "}
@@ -31,7 +31,7 @@ export default function FinalCta() {
 
             <StoreBadges className="mt-8" />
 
-            <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
+            <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 max-md:mt-8 max-md:gap-3 max-md:rounded-[1.5rem] max-md:bg-[#f6f5f2] max-md:p-4">
               {finalCtaBenefits.map((benefit) => (
                 <div key={benefit.label} className="flex items-center gap-2">
                   <Icon name={benefit.icon} className="h-5 w-5 text-[#1436CD]" />
@@ -43,25 +43,25 @@ export default function FinalCta() {
             </div>
           </Reveal>
 
-          <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[340px]">
-            <div className="animate-scale-in relative mx-auto w-[240px] sm:w-[300px] [animation-delay:120ms]">
+          <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[340px] max-md:max-w-[300px]">
+            <div className="animate-scale-in relative mx-auto w-[240px] sm:w-[300px] [animation-delay:120ms] max-md:w-[260px]">
               <div className="overflow-hidden rounded-[3rem] border-[6px] border-[#0b0f19] bg-[#0b0f19] shadow-[0_40px_80px_-20px_rgba(11,15,25,0.3)]">
                 <Image
                   src="/screens/favorites.png"
-                  alt="Экран избранного в приложении Kaida"
+                  alt="Экран избранного в приложении Kaida App"
                   width={1179}
                   height={2556}
                   className="h-auto w-full"
                 />
               </div>
 
-              <div className="absolute -left-12 top-6 hidden h-16 w-16 items-center justify-center rounded-full bg-[#1436CD] text-white shadow-[0_18px_36px_-14px_rgba(20,54,205,0.5)] sm:flex">
+              <div className="absolute -left-12 top-6 hidden h-16 w-16 items-center justify-center rounded-full bg-[#1436CD] text-white shadow-[0_18px_36px_-14px_rgba(20,54,205,0.5)] md:flex">
                 <Icon name="star-medal" className="h-7 w-7" />
               </div>
-              <div className="absolute -right-10 top-1/3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#1436CD] shadow-[0_18px_36px_-14px_rgba(11,15,25,0.25)]">
+              <div className="absolute -right-10 top-1/3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#1436CD] shadow-[0_18px_36px_-14px_rgba(11,15,25,0.25)] max-md:-right-4 max-md:h-14 max-md:w-14 max-md:rounded-[1.25rem]">
                 <Icon name="percent" className="h-6 w-6" />
               </div>
-              <div className="absolute -left-8 bottom-10 hidden h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#1436CD] shadow-[0_18px_36px_-14px_rgba(11,15,25,0.25)] sm:flex">
+              <div className="absolute -left-8 bottom-10 hidden h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#1436CD] shadow-[0_18px_36px_-14px_rgba(11,15,25,0.25)] md:flex">
                 <Icon name="gift" className="h-6 w-6" />
               </div>
             </div>

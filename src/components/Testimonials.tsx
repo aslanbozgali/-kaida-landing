@@ -43,10 +43,10 @@ export default function Testimonials() {
           <span className="inline-flex items-center rounded-full bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#1436CD]">
             Отзывы
           </span>
-          <h2 className="mt-5 max-w-lg text-3xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl">
+          <h2 className="mt-5 max-w-lg text-3xl font-semibold leading-tight tracking-tight text-[#0b0f19] sm:text-5xl max-md:text-[2.25rem] max-md:font-extrabold max-md:leading-[1.1] max-md:tracking-[-0.01em]">
             Что говорят наши пользователи
           </h2>
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-black/55">
+          <p className="mt-4 max-w-md text-lg leading-relaxed text-black/55 max-md:text-base">
             Реальные отзывы людей, которые уже экономят в любимых местах с
             Kaida App
           </p>
@@ -54,7 +54,7 @@ export default function Testimonials() {
 
         <div
           ref={scrollerRef}
-          className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-md:mt-9 max-md:gap-4"
         >
           {testimonials.map((t, i) => (
             <Reveal
@@ -62,7 +62,7 @@ export default function Testimonials() {
               delay={i * 90}
               className="w-[85%] shrink-0 snap-start sm:w-[46%] lg:w-[24%]"
             >
-              <div className="hover-lift flex h-full flex-col rounded-[1.75rem] border border-black/8 bg-white p-6">
+              <div className="hover-lift flex h-full flex-col rounded-[1.75rem] border border-black/8 bg-white p-6 max-md:rounded-[2rem] max-md:border-0 max-md:p-7 max-md:shadow-[0_25px_55px_-28px_rgba(11,15,25,0.22)]">
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eef1fd] text-base font-semibold text-[#1436CD]">
                     {t.initial}
@@ -101,7 +101,7 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <div className="mt-8 flex items-center justify-between">
+        <div className="mt-8 flex items-center justify-between max-md:mt-6">
           <div className="flex gap-2">
             {testimonials.map((t, i) => (
               <button
@@ -109,19 +109,19 @@ export default function Testimonials() {
                 type="button"
                 aria-label={`Отзыв ${i + 1}`}
                 onClick={() => scrollToIndex(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-2 rounded-full transition-all duration-300 max-md:h-2.5 ${
                   active === i ? "w-6 bg-[#1436CD]" : "w-2 bg-black/15"
                 }`}
               />
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-md:gap-3">
             <button
               type="button"
               aria-label="Предыдущий отзыв"
               onClick={() => scrollToIndex(Math.max(0, active - 1))}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-[#0b0f19] transition-colors duration-300 hover:border-[#1436CD]/40 hover:text-[#1436CD]"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-[#0b0f19] transition-colors duration-300 hover:border-[#1436CD]/40 hover:text-[#1436CD] max-md:h-12 max-md:w-12 max-md:border-0 max-md:bg-[#f6f5f2] max-md:shadow-[0_10px_25px_-15px_rgba(11,15,25,0.2)]"
             >
               <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                 <path d="m15 6-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -131,7 +131,7 @@ export default function Testimonials() {
               type="button"
               aria-label="Следующий отзыв"
               onClick={() => scrollToIndex(Math.min(testimonials.length - 1, active + 1))}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-[#0b0f19] transition-colors duration-300 hover:border-[#1436CD]/40 hover:text-[#1436CD]"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-[#0b0f19] transition-colors duration-300 hover:border-[#1436CD]/40 hover:text-[#1436CD] max-md:h-12 max-md:w-12 max-md:border-0 max-md:bg-[#f6f5f2] max-md:shadow-[0_10px_25px_-15px_rgba(11,15,25,0.2)]"
             >
               <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                 <path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

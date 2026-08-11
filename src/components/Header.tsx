@@ -14,14 +14,14 @@ export default function Header() {
         <Link href="#" className="flex items-center gap-2" onClick={() => setOpen(false)}>
           <Image
             src="/brand/logo-blue.png"
-            alt="Kaida"
+            alt="Kaida App"
             width={32}
             height={32}
             className="h-7 w-7 sm:h-8 sm:w-8"
             unoptimized
             priority
           />
-          <span className="text-lg font-semibold tracking-tight text-[#0b0f19] sm:text-xl">
+          <span className="text-lg font-semibold tracking-tight text-[#0b0f19] sm:text-xl max-md:font-bold">
             Kaida App
           </span>
         </Link>
@@ -73,14 +73,14 @@ export default function Header() {
       </div>
 
       {open && (
-        <div className="border-t border-black/5 bg-white px-5 py-4 md:hidden">
-          <nav className="flex flex-col gap-1">
+        <div className="border-t border-black/5 bg-white px-5 py-4 md:hidden max-md:rounded-b-[2rem] max-md:border-t-0 max-md:px-6 max-md:pb-8 max-md:pt-4 max-md:shadow-[0_30px_60px_-25px_rgba(11,15,25,0.25)]">
+          <nav className="flex flex-col gap-1 max-md:gap-2">
             {nav.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-xl px-3 py-3 text-[15px] font-medium text-black/70 active:bg-black/5"
+                className="rounded-xl px-3 py-3 text-[15px] font-medium text-black/70 active:bg-black/5 max-md:rounded-2xl max-md:px-4 max-md:py-4 max-md:text-[17px] max-md:font-semibold"
               >
                 {item.label}
               </a>
@@ -88,7 +88,7 @@ export default function Header() {
             <a
               href="#download"
               onClick={() => setOpen(false)}
-              className="mt-2 rounded-full bg-[#1436CD] px-5 py-3 text-center text-sm font-semibold text-white"
+              className="mt-2 rounded-full bg-[#1436CD] px-5 py-3 text-center text-sm font-semibold text-white max-md:mt-4 max-md:flex max-md:h-14 max-md:items-center max-md:justify-center max-md:rounded-[1.75rem] max-md:text-base max-md:shadow-[0_20px_40px_-15px_rgba(20,54,205,0.5)] max-md:active:scale-[0.98] max-md:transition-transform"
             >
               Скачать приложение
             </a>
