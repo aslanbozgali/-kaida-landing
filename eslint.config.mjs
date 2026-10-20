@@ -1,5 +1,6 @@
 import nextConfig from "eslint-config-next";
 
-const eslintConfig = [...nextConfig];
+// finance-tracker/ — отдельный проект со своей сборкой
+const eslintConfig = [...nextConfig, { ignores: ["finance-tracker/**"] }];
 
 export default eslintConfig;
