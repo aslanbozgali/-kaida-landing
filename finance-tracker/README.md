@@ -41,3 +41,9 @@ src/
   App.tsx           каркас: шапка, итоги, вкладки
   components/       PeriodPicker, Summary, TransactionList, TransactionForm, Stats, Budgets, Settings
 ```
+
+## Версия-артефакт
+
+`artifact/finance.html` — та же функциональность одной страницей, опубликованной как артефакт Claude:
+https://claude.ai/artifact/96FFET4MHEobqdwLmepHvX. Там данные хранятся приватно в аккаунте Claude
+(доступны с любого устройства). Формат резервной копии JSON у обеих версий одинаковый.
