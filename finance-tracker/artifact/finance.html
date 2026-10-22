@@ -261,6 +261,13 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .dialog { display: grid; gap: 14px; width: min(400px, calc(100% - 32px)); margin: auto; padding: 22px; border: 1px solid var(--line); border-radius: 26px; background: var(--surface); }
 .dialog-wrap { align-items: center; z-index: 25; }
+.quick { display: grid; gap: 6px; margin-bottom: 16px; }
+.quick-row { display: flex; gap: 8px; }
+.quick-row input { min-height: 48px; border-radius: 999px; padding-inline: 18px; background: var(--surface); }
+.quick-row button { width: 48px; height: 48px; flex: none; border: none; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 20px; font-weight: 700; }
+.quick-hint { min-height: 18px; padding-inline: 18px; color: var(--muted); font-size: 12px; }
+.recon { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.recon .btn { border-color: transparent; background: var(--on-accent); color: var(--accent); }
 .toast-action { margin-left: 12px; padding: 4px 12px; border: none; border-radius: 999px; background: var(--on-accent); color: var(--accent); font-weight: 600; }
 .toast {
   position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 30;
@@ -288,6 +295,14 @@ h1, h2, h3, h4, p { margin: 0; }
       <button class="icon-btn" id="nextMonth" data-action="month" data-delta="1" aria-label="Следующий месяц">›</button>
     </div>
   </header>
+
+  <form class="quick" id="quick" autocomplete="off">
+    <div class="quick-row">
+      <input id="quickInput" placeholder="такси 2500 · магнум 18к" aria-label="Быстрая запись операции">
+      <button type="submit" aria-label="Записать">→</button>
+    </div>
+    <div class="quick-hint" id="quickHint">Сумма и пара слов. Знак «+» в начале — это доход.</div>
+  </form>
 
   <section id="summary" class="summary" aria-live="polite"></section>
 
@@ -421,6 +436,7 @@ function dayLabel(date) {
   const wd = WEEKDAYS[new Date(yy, mm - 1, dd).getDay()];
   return `${dd} ${MONTHS_GEN[mm - 1]}${String(yy) === today.slice(0, 4) ? "" : " " + yy}, ${wd}`;
 }
+function ago(d) { const n = daysBetween(d, todayISO()); return n <= 0 ? "сегодня" : n === 1 ? "вчера" : `${n} ${plural(n, "день", "дня", "дней")} назад`; }
 function plural(n, one, few, many) {
   const a = Math.abs(n) % 100, b = a % 10;
   return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many;
@@ -453,7 +469,7 @@ const defaultProfile = () => ({
   categories: DEFAULT_CATEGORIES.map(([name, kind], i) => ({ id: uid(), name, kind, color: PALETTE[i % PALETTE.length] })),
   bills: [],
   envelopes: DEFAULT_ENVELOPES.map(([name, share]) => ({ id: uid(), name, target: 0, share, opening: 0, monthly: 0, deadline: "", liquid: true })),
-  living: 0, bufferMonths: 1, openingFree: 0, marked: {},
+  living: 0, bufferMonths: 1, openingFree: 0, marked: {}, lastRecon: "",
 });
 const isKind = (v) => v === "income" || v === "expense";
 const isId = (v) => typeof v === "string" && /^[A-Za-z0-9_\-.~:@+]{1,200}$/.test(v);
@@ -483,6 +499,7 @@ function parseProfile(raw) {
   return {
     version: 1, currency, budgets, categories, bills, envelopes,
     living: num(raw.living), bufferMonths: Math.min(12, num(raw.bufferMonths, 1)), openingFree: num(raw.openingFree), marked,
+    lastRecon: typeof raw.lastRecon === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.lastRecon) ? raw.lastRecon : "",
   };
 }
 function parseTx(raw, id) {
@@ -496,6 +513,7 @@ function parseTx(raw, id) {
   };
   for (const k of ["project", "billId", "envelopeId", "sourceTxId"]) if (typeof raw[k] === "string" && raw[k]) tx[k] = raw[k];
   if (raw.sample === true) tx.sample = true;
+  if (raw.recon === true) tx.recon = true;
   if (raw.kind === "transfer") {
     tx.from = typeof raw.from === "string" ? raw.from : "";
     tx.to = typeof raw.to === "string" ? raw.to : "";
@@ -766,7 +784,9 @@ function renderPlan() {
       <div><span class="muted">Осталось оплатить в этом месяце</span><span>${esc(money(unpaidSum))}</span></div>
       <div><span class="muted">Отложено в конвертах</span><span>${esc(money(total - free))}</span></div>
       ${minimum > 0 ? `<div><span class="muted">Доступных денег хватит</span><span>${runway < 0.1 ? "меньше чем на месяц" : `≈ ${nf.format(Math.round(runway * 10) / 10)} мес.`}</span></div>` : ""}
-    </div>${verdict}</div>`;
+    </div>${verdict}
+    <div class="recon small"><span class="muted">${p.lastRecon ? `Сверка баланса: ${esc(ago(p.lastRecon))}` : "Сверь баланс с картой Kaspi, чтобы не записывать мелкие траты"}</span>
+      <button class="btn sm" data-action="recon">Сверить баланс</button></div></div>`;
 
   // 2. Bills calendar
   let running = 0;
@@ -948,7 +968,7 @@ function renderStats() {
   const from = shiftMonth(currentMonth(), -5) + "-01", today = todayISO();
   const projects = new Map();
   for (const t of flows()) {
-    if (t.kind !== "income" || t.date < from) continue;
+    if (t.kind !== "income" || t.date < from || t.recon) continue;
     const key = t.project || "Без проекта";
     const p = projects.get(key) || { sum: 0, count: 0, last: "" };
     p.sum += t.amount; p.count++; if (t.date > p.last) p.last = t.date;
@@ -1221,6 +1241,118 @@ function openAllocation(tx) {
     },
   });
 }
+/** Reconciliation: one real balance replaces logging every small purchase; the gap becomes one "everyday spending" record. */
+function ensureCategory(name, kind) {
+  const found = app.profile.categories.find((c) => c.name === name && c.kind === kind);
+  if (found) return found.id;
+  const c = { id: uid(), name, kind, color: PALETTE[app.profile.categories.length % PALETTE.length] };
+  app.profile.categories.push(c);
+  app.profileSaved = false;
+  return c.id;
+}
+function openRecon() {
+  const bal = envBalances(), free = freeMoney();
+  const sameCard = app.profile.envelopes.filter((e) => e.liquid && bal.get(e.id) > 0);
+  const sameSum = sameCard.reduce((a, e) => a + bal.get(e.id), 0);
+  openForm({
+    title: "Сверка баланса",
+    body: `<p class="form-intro">Посмотри в Kaspi и впиши, сколько у тебя сейчас свободных денег: на картах и наличными.
+        По записям приложения должно быть ${esc(money(free))}.</p>
+      <label>Свободных денег по факту, ${esc(app.profile.currency)}<input id="g-actual" inputmode="decimal" placeholder="Например, 84 500"></label>
+      ${sameSum > 0 ? `<p class="small muted">Если отложенное в конверты (${esc(sameCard.map((e) => e.name).join(", "))}: ${esc(money(sameSum))}) лежит на той же карте, вычти эту сумму. Отбасы и депозиты не считай.</p>` : `<p class="small muted">Отбасы и депозиты не считай: это деньги конвертов.</p>`}
+      <p class="small" id="g-diff"></p>`,
+    submit: "Сверить",
+    onInput() {
+      const v = parseAmount(gVal("actual")), el = $("#g-diff");
+      if (!(v >= 0)) { el.textContent = ""; return; }
+      const d = free - v;
+      el.className = "small " + (d > 0 ? "warn" : d < 0 ? "pos" : "muted");
+      el.textContent = d > 0 ? `Запишется расход ${money(d)}: повседневные траты с ${app.profile.lastRecon ? "прошлой сверки" : "начала учёта"}.`
+        : d < 0 ? `Запишется неучтённое поступление ${money(-d)}.` : "Всё сходится, ничего записывать не нужно.";
+    },
+    onSubmit() {
+      const v = parseAmount(gVal("actual"));
+      if (!(v >= 0)) return "Впиши сумму числом, например 84 500.";
+      const d = Math.round((free - v) * 100) / 100, today = todayISO();
+      const since = app.profile.lastRecon ? `с ${shortDate(app.profile.lastRecon)}` : "с начала учёта";
+      let tx = null;
+      if (d !== 0) {
+        const kind = d > 0 ? "expense" : "income";
+        const categoryId = ensureCategory(kind === "expense" ? "Повседневные расходы" : "Другое", kind);
+        tx = { id: uid(), kind, amount: Math.abs(d), categoryId, date: today, createdAt: Date.now(), recon: true,
+          note: kind === "expense" ? `Сверка баланса: траты ${since}` : `Сверка баланса: неучтённые поступления ${since}` };
+      }
+      updateProfile((p) => (p.lastRecon = today));
+      if (tx) upsertTx(tx);
+      toast(d === 0 ? "Баланс сходится." : d > 0 ? `Записаны повседневные траты: ${money(d)}.` : `Записано поступление: ${money(-d)}.`);
+    },
+  });
+}
+
+// Quick entry: "такси 2500", "продукты 18 000 магнум", "+300000 Проект А".
+const KEYWORDS = [
+  ["Продукты", "продукт магнум magnum смолл small анвар галмарт магазин супермаркет рынок хлеб молоко"],
+  ["Транспорт", "такси taxi яндекс yandex indrive индрайв бензин заправка автобус парковка"],
+  ["Кафе и рестораны", "кафе кофе ресторан обед ужин завтрак доставка glovo wolt бургер пицца суши шаурма"],
+  ["Здоровье", "аптека врач клиника анализ стоматолог лекарств"],
+  ["Связь и интернет", "связь интернет телефон beeline билайн tele2 теле2 activ актив kcell"],
+  ["Одежда", "одежда обувь кроссовк куртк"],
+  ["Развлечения", "кино боулинг игры концерт"],
+  ["Подписки", "подписк netflix spotify icloud youtube"],
+  ["Детский сад", "садик"],
+  ["Жильё и коммуналка", "аренда коммуналк свет газ вода квартплата"],
+  ["Кредиты", "кредит рассрочк"],
+  ["Семья", "жене жена семья ребенку ребёнку детям сыну дочке"],
+];
+const words = (t) => t.toLowerCase().split(/[^a-zа-яё0-9]+/i).filter((w) => w.length >= 3);
+function parseQuick(input) {
+  let text = input.trim();
+  const income = /^\+/.test(text);
+  text = text.replace(/^[+-]\s*/, "");
+  const m = text.match(/(\d[\d\s ]*(?:[.,]\d{1,2})?)\s*(к|k|тыс\.?)?(?=\s|$|₸|тг)/i);
+  if (!m) return null;
+  let amount = parseAmount(m[1].trim());
+  if (m[2]) amount *= 1000;
+  if (!(amount > 0)) return null;
+  const rest = (text.slice(0, m.index) + " " + text.slice(m.index + m[0].length)).replace(/₸|тг(?![а-яё])/gi, "").replace(/\s+/g, " ").trim();
+  const kind = income ? "income" : "expense";
+  const ws = words(rest);
+  const cats = app.profile.categories.filter((c) => c.kind === kind);
+  let categoryId = "";
+  // 1) your own history: the latest record whose comment shares a word
+  const past = app.txs.filter((t) => t.kind === kind && !t.recon && t.note && cats.some((c) => c.id === t.categoryId)).sort((a, b) => b.date.localeCompare(a.date));
+  for (const t of past) if (words(t.note).some((w) => ws.includes(w))) { categoryId = t.categoryId; break; }
+  // 2) category names, then common words
+  if (!categoryId) {
+    const byName = cats.find((c) => words(c.name).some((w) => ws.some((x) => x.startsWith(w.slice(0, 5)))));
+    const kw = kind === "expense" ? KEYWORDS.find(([, list]) => list.split(" ").some((k) => ws.some((x) => x.startsWith(k)))) : null;
+    categoryId = byName?.id || (kw && cats.find((c) => c.name === kw[0])?.id) || "";
+  }
+  if (!categoryId) categoryId = (cats.find((c) => c.name === (kind === "income" ? "Проекты" : "Другое")) || cats[0])?.id || "";
+  return { kind, amount, categoryId, rest };
+}
+function describeQuick(q) {
+  const c = app.profile.categories.find((x) => x.id === q.categoryId);
+  return `${q.kind === "income" ? "Доход" : "Расход"} · ${c ? c.name : "без категории"} · ${money(q.amount)}${q.rest ? ` · ${q.rest}` : ""}`;
+}
+const QUICK_HINT = "Сумма и пара слов. Знак «+» в начале — это доход.";
+$("#quickInput").addEventListener("input", (e) => {
+  const v = e.target.value.trim(), q = v ? parseQuick(v) : null;
+  $("#quickHint").textContent = !v ? QUICK_HINT : q ? `Запишется: ${describeQuick(q)}` : "Не вижу сумму. Пример: такси 2500";
+});
+$("#quick").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = $("#quickInput"), q = parseQuick(input.value);
+  if (!q) return toast("Не вижу сумму. Пример: такси 2500 или +300000 Проект А");
+  if (!q.categoryId) return toast("Нет подходящей категории. Добавь её во вкладке «Ещё».");
+  const tx = { id: uid(), kind: q.kind, amount: q.amount, categoryId: q.categoryId, date: todayISO(), note: q.kind === "income" ? "" : q.rest, createdAt: Date.now() };
+  if (q.kind === "income" && q.rest) tx.project = q.rest;
+  input.value = ""; $("#quickHint").textContent = QUICK_HINT; input.blur();
+  upsertTx(tx);
+  if (tx.kind === "income" && app.profile.envelopes.length) openAllocation(tx);
+  else toast(`Записано: ${describeQuick(q)}`, "Отменить", () => removeTxs([tx.id]));
+});
+
 function setMarked(billId, on) {
   const month = currentMonth();
   updateProfile((p) => {
@@ -1344,6 +1476,7 @@ document.addEventListener("click", async (e) => {
     setMarked(id, false);
     toast("Отметка снята.", "Вернуть", () => setMarked(id, true));
   }
+  else if (a === "recon") openRecon();
   else if (a === "pay-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) payBill(bill); }
   else if (a === "edit-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) openBillForm(bill); }
   else if (a === "new-bill") openBillForm(null);
