@@ -261,6 +261,7 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .dialog { display: grid; gap: 14px; width: min(400px, calc(100% - 32px)); margin: auto; padding: 22px; border: 1px solid var(--line); border-radius: 26px; background: var(--surface); }
 .dialog-wrap { align-items: center; z-index: 25; }
+.toast-action { margin-left: 12px; padding: 4px 12px; border: none; border-radius: 999px; background: var(--on-accent); color: var(--accent); font-weight: 600; }
 .toast {
   position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 30;
   max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 12px; transform: translateX(-50%);
@@ -752,7 +753,13 @@ function renderPlan() {
   if (!p.bills.length) verdict = `<div class="verdict">Добавь обязательные платежи ниже, и здесь появится ответ, хватает ли денег до конца месяца.</div>`;
   else if (!unpaid.length) verdict = `<div class="verdict good">Все обязательные платежи за ${MONTHS[Number(month.slice(5)) - 1].toLowerCase()} оплачены.</div>`;
   else if (after >= 0) verdict = `<div class="verdict good">Свободных денег хватает на все оставшиеся платежи месяца. После них останется ${esc(money(after))}.</div>`;
-  else verdict = `<div class="verdict bad">До конца месяца не хватает ${esc(money(-after))} на обязательные платежи. Пока доход не пришёл, можно взять из конверта «${esc(p.envelopes[0]?.name || "Резерв")}» или сократить необязательные траты.</div>`;
+  else {
+    // Only suggest envelopes marked as usable in an emergency that actually hold money.
+    const spare = p.envelopes.filter((e) => e.liquid && bal.get(e.id) > 0).sort((x, y) => bal.get(y.id) - bal.get(x.id))[0];
+    verdict = `<div class="verdict bad">До конца месяца не хватает ${esc(money(-after))} на обязательные платежи. ${spare
+      ? `Пока доход не пришёл, можно взять из конверта «${esc(spare.name)}» (там ${esc(money(bal.get(spare.id)))}) или сократить необязательные траты.`
+      : "Нужно дождаться дохода или сократить необязательные траты."}</div>`;
+  }
   let html = `<div class="card plan-hero">
     <div><span class="muted small">Свободные деньги</span><div class="big ${free < 0 ? "neg" : ""}">${esc(money(free))}</div></div>
     <div class="kv small">
@@ -781,7 +788,8 @@ function renderPlan() {
       <div class="bill-main"><div class="bill-top"><span class="bill-name">${esc(b.name)}</span><span class="bill-amt">${esc(money(b.amount))}</span></div>
         <span class="small">${status}</span></div>
       <div class="bill-side">
-        ${unpaidIds.has(b.id) ? `<button class="btn sm primary" data-action="pay-bill" data-id="${esc(b.id)}">Оплатить</button>` : ""}
+        ${unpaidIds.has(b.id) ? `<button class="link-btn small" data-action="mark-bill" data-id="${esc(b.id)}">Уже оплачен</button>
+          <button class="btn sm primary" data-action="pay-bill" data-id="${esc(b.id)}">Оплатить</button>` : ""}
         ${paidTx && paidTx.marked ? `<button class="link-btn small" data-action="unmark-bill" data-id="${esc(b.id)}">Снять отметку</button>` : ""}
         <button class="icon-btn sm" data-action="edit-bill" data-id="${esc(b.id)}" aria-label="Изменить платёж ${esc(b.name)}">✎</button></div></li>`;
   }).join("");
@@ -1213,6 +1221,13 @@ function openAllocation(tx) {
     },
   });
 }
+function setMarked(billId, on) {
+  const month = currentMonth();
+  updateProfile((p) => {
+    const list = (p.marked[month] || []).filter((x) => x !== billId);
+    p.marked[month] = on ? [...list, billId] : list;
+  });
+}
 function payBill(bill) {
   openSheet(null, { kind: "expense", amount: bill.amount, categoryId: bill.categoryId, note: bill.name, billId: bill.id, date: todayISO() });
 }
@@ -1230,9 +1245,17 @@ function askConfirm(text, okLabel) {
   });
 }
 let toastTimer;
-function toast(msg) {
-  const t = $("#toast"); t.textContent = msg; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 4000);
+function toast(msg, actionLabel, action) {
+  const t = $("#toast");
+  t.textContent = msg;
+  if (actionLabel) {
+    const btn = document.createElement("button");
+    btn.className = "toast-action"; btn.textContent = actionLabel;
+    btn.onclick = () => { t.hidden = true; action(); };
+    t.append(btn);
+  }
+  t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), actionLabel ? 7000 : 4000);
 }
 
 // ---------- files ----------
@@ -1312,12 +1335,15 @@ document.addEventListener("click", async (e) => {
     } else $("#sheet").hidden = false;
   }
   else if (a === "mark-bill") {
-    const billId = ui.sheetBillId, month = currentMonth();
-    closeSheet();
-    updateProfile((p) => { p.marked[month] = [...new Set([...(p.marked[month] || []), billId])]; });
-    toast("Платёж отмечен оплаченным. Свободные деньги не изменились.");
+    const billId = id || ui.sheetBillId;
+    if (!id) closeSheet();
+    setMarked(billId, true);
+    toast("Платёж отмечен оплаченным. Свободные деньги не изменились.", "Отменить", () => setMarked(billId, false));
   }
-  else if (a === "unmark-bill") updateProfile((p) => { p.marked[currentMonth()] = (p.marked[currentMonth()] || []).filter((x) => x !== id); });
+  else if (a === "unmark-bill") {
+    setMarked(id, false);
+    toast("Отметка снята.", "Вернуть", () => setMarked(id, true));
+  }
   else if (a === "pay-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) payBill(bill); }
   else if (a === "edit-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) openBillForm(bill); }
   else if (a === "new-bill") openBillForm(null);
