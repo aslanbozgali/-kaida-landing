@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap">
 <style>
-/* Layout: single mobile-first column (max 760px) — summary first, then tabs; operations open in a bottom sheet. */
+/* Layout: single mobile-first column (max 760px) — the plan (bills, envelopes) is home; forms open in a bottom sheet. */
 :root {
   --bg: #f3f5f4;
   --surface: #ffffff;
@@ -62,6 +62,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .small { font-size: 13px; }
 .pos { color: var(--pos); }
 .neg { color: var(--neg); }
+.warn { color: var(--warn); }
 
 .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; }
@@ -71,6 +72,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .period { display: flex; align-items: center; gap: 4px; }
 .period-label { min-width: 150px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 600; }
 .icon-btn { width: 38px; height: 38px; flex: none; border: none; border-radius: 999px; background: transparent; font-size: 22px; line-height: 1; }
+.icon-btn.sm { width: 32px; height: 32px; font-size: 16px; color: var(--muted); }
 .icon-btn:not(:disabled):hover { background: var(--track); }
 
 .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
@@ -80,8 +82,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .tile.balance strong { font: 700 clamp(26px, 8vw, 34px)/1.15 var(--font-display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
 .tile strong { font-size: 18px; overflow-wrap: anywhere; }
 
-.tabs { display: flex; gap: 4px; margin-bottom: 16px; padding: 4px; border-radius: 13px; background: var(--track); }
-.tab { flex: 1; padding: 8px 4px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.tabs { display: flex; gap: 2px; margin-bottom: 16px; padding: 4px; overflow-x: auto; border-radius: 13px; background: var(--track); scrollbar-width: none; }
+.tab { flex: 1 0 auto; padding: 8px 6px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
 .tab[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
 
 .segmented { display: inline-flex; padding: 3px; border-radius: 11px; background: var(--track); }
@@ -108,8 +110,9 @@ h1, h2, h3, h4, p { margin: 0; }
 .tx-cat { font-weight: 500; }
 .tx-note { overflow: hidden; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .tx-amount { font-weight: 600; white-space: nowrap; }
+.tx-amount.move { color: var(--muted); }
 .dot { display: inline-block; width: 10px; height: 10px; flex: none; border-radius: 999px; }
-.tag { margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: var(--track); color: var(--muted); font-size: 11px; font-weight: 600; vertical-align: 1px; }
+.tag { margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: var(--track); color: var(--muted); font-size: 11px; font-weight: 600; vertical-align: 1px; white-space: nowrap; }
 
 .fab {
   position: fixed;
@@ -133,12 +136,19 @@ h1, h2, h3, h4, p { margin: 0; }
 .sheet h2 { font: 700 17px/1.3 var(--font-display); }
 .sheet label { display: grid; gap: 4px; color: var(--muted); font-size: 13px; }
 .sheet label input, .sheet label select { color: var(--fg); font-size: 15px; }
+.form-body { display: grid; gap: 12px; }
+.form-intro { color: var(--muted); font-size: 14px; }
+.alloc-row { display: grid; grid-template-columns: 1fr 140px; align-items: center; gap: 10px; }
+.alloc-row span { min-width: 0; color: var(--fg); font-size: 14px; }
+.alloc-row input { text-align: right; }
+.alloc-left { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 11px; background: var(--track); font-weight: 600; }
 #fAmount { font-size: 26px; font-weight: 700; }
 .error { color: var(--neg); font-size: 13px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .spacer { flex: 1; }
 
 .btn { min-height: 42px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); font-weight: 600; }
+.btn.sm { min-height: 34px; padding: 4px 12px; font-size: 13px; }
 .btn:not(:disabled):hover { background: var(--track); }
 .btn.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 .btn.primary:not(:disabled):hover { background: var(--accent); filter: brightness(1.08); }
@@ -148,8 +158,44 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .card { margin-bottom: 16px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
 .card h3 { margin-bottom: 12px; font-size: 16px; }
-.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
 .card-head h3 { margin: 0; }
+.card-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 12px; }
+
+/* Plan */
+.plan-hero { display: grid; gap: 12px; }
+.plan-hero .big { font: 700 clamp(24px, 7vw, 30px)/1.15 var(--font-display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.kv { display: grid; gap: 6px; }
+.kv div { display: flex; justify-content: space-between; gap: 12px; }
+.kv div span:last-child { font-weight: 600; text-align: right; white-space: nowrap; }
+.verdict { padding: 10px 12px; border-radius: 12px; background: var(--track); font-size: 14px; }
+.verdict.bad { color: var(--neg); }
+.verdict.good { color: var(--pos); }
+.bill-list, .env-list, .proj-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.bill { display: grid; grid-template-columns: 52px 1fr; align-items: start; gap: 6px 12px; padding: 12px 0; }
+.bill + .bill, .env + .env, .proj + .proj { border-top: 1px solid var(--line); }
+.due { display: grid; justify-items: center; padding: 6px 0; border-radius: 12px; background: var(--track); line-height: 1.1; }
+.due b { font-size: 17px; }
+.due span { color: var(--muted); font-size: 11px; }
+.bill-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bill-top { display: flex; justify-content: space-between; gap: 12px; }
+.bill-name { min-width: 0; font-weight: 500; overflow-wrap: anywhere; }
+.bill-amt { font-weight: 600; white-space: nowrap; }
+.bill-side { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; grid-column: 2; }
+.status { font-size: 12px; font-weight: 600; }
+.bill.paid .bill-name, .bill.paid .bill-amt { color: var(--muted); }
+.bill.paid .due { opacity: 0.5; }
+.env { display: grid; gap: 6px; padding: 12px 0; }
+.env-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.env-name { font-weight: 600; overflow-wrap: anywhere; }
+.env-bal { font-weight: 700; white-space: nowrap; }
+.env-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+.params { display: grid; gap: 10px; }
+.params label { display: grid; gap: 4px; color: var(--muted); font-size: 13px; }
+@media (min-width: 560px) { .params { grid-template-columns: repeat(3, 1fr); } }
+.proj { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; }
+.proj-name { min-width: 0; font-weight: 500; overflow-wrap: anywhere; }
+.proj-sum { font-weight: 600; text-align: right; white-space: nowrap; }
 
 .donut-wrap { display: grid; gap: 20px; align-items: center; }
 @media (min-width: 560px) { .donut-wrap { grid-template-columns: 200px 1fr; } }
@@ -182,10 +228,12 @@ h1, h2, h3, h4, p { margin: 0; }
 .budget-input.invalid { border-color: var(--neg); }
 .budget-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 6px; }
 .progress { height: 8px; margin-top: 10px; overflow: hidden; border-radius: 999px; background: var(--track); }
+.env .progress { margin-top: 0; }
 .progress-fill { height: 100%; border-radius: 999px; transition: width 0.3s; }
 .progress-fill.ok { background: var(--pos); }
 .progress-fill.warn { background: var(--warn); }
 .progress-fill.over { background: var(--neg); }
+.progress-fill.goal { background: var(--accent); }
 
 .cat-group { margin-bottom: 12px; }
 .cat-group h4 { margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -203,7 +251,7 @@ h1, h2, h3, h4, p { margin: 0; }
 #currency { width: 100px; }
 
 .dialog { display: grid; gap: 14px; width: min(400px, calc(100% - 32px)); margin: auto; padding: 20px; border-radius: 20px; background: var(--surface); }
-.dialog-wrap { align-items: center; }
+.dialog-wrap { align-items: center; z-index: 25; }
 .toast {
   position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 30;
   max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 12px; transform: translateX(-50%);
@@ -224,7 +272,7 @@ h1, h2, h3, h4, p { margin: 0; }
       <h1>Мои финансы</h1>
       <span id="sync" class="chip">Загрузка…</span>
     </div>
-    <div class="period">
+    <div class="period" id="periodBox">
       <button class="icon-btn" id="prevMonth" data-action="month" data-delta="-1" aria-label="Предыдущий месяц">‹</button>
       <button class="period-label" id="periodLabel" data-action="toggle-all" title="Переключить: месяц / всё время"></button>
       <button class="icon-btn" id="nextMonth" data-action="month" data-delta="1" aria-label="Следующий месяц">›</button>
@@ -234,14 +282,16 @@ h1, h2, h3, h4, p { margin: 0; }
   <section id="summary" class="summary" aria-live="polite"></section>
 
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tab-ops" data-action="tab" data-tab="ops" aria-selected="true">Операции</button>
-    <button class="tab" role="tab" id="tab-stats" data-action="tab" data-tab="stats" aria-selected="false">Статистика</button>
+    <button class="tab" role="tab" id="tab-plan" data-action="tab" data-tab="plan" aria-selected="true">План</button>
+    <button class="tab" role="tab" id="tab-ops" data-action="tab" data-tab="ops" aria-selected="false">Операции</button>
+    <button class="tab" role="tab" id="tab-stats" data-action="tab" data-tab="stats" aria-selected="false">Анализ</button>
     <button class="tab" role="tab" id="tab-budgets" data-action="tab" data-tab="budgets" aria-selected="false">Бюджеты</button>
     <button class="tab" role="tab" id="tab-settings" data-action="tab" data-tab="settings" aria-selected="false">Настройки</button>
   </nav>
 
   <main>
-    <section id="view-ops">
+    <section id="view-plan"></section>
+    <section id="view-ops" hidden>
       <div class="filters">
         <div class="segmented" id="fKind">
           <button data-action="fkind" data-kind="all" class="active">Все</button>
@@ -249,7 +299,7 @@ h1, h2, h3, h4, p { margin: 0; }
           <button data-action="fkind" data-kind="income">Доходы</button>
         </div>
         <select id="fCat" aria-label="Категория"></select>
-        <input id="fQuery" type="search" placeholder="Поиск по комментарию или категории">
+        <input id="fQuery" type="search" placeholder="Поиск по комментарию, проекту, категории">
       </div>
       <div id="txList"></div>
     </section>
@@ -274,6 +324,13 @@ h1, h2, h3, h4, p { margin: 0; }
     <label>Категория
       <select id="fCategory"></select>
     </label>
+    <label id="fProjectWrap">Проект
+      <input id="fProject" list="projectList" maxlength="60" placeholder="От кого или за что пришли деньги" autocomplete="off">
+    </label>
+    <datalist id="projectList"></datalist>
+    <label id="fEnvelopeWrap">Оплатить из
+      <select id="fEnvelope"></select>
+    </label>
     <label>Дата
       <input id="fDate" type="date">
     </label>
@@ -283,9 +340,24 @@ h1, h2, h3, h4, p { margin: 0; }
     <p class="error" id="fErr" hidden></p>
     <div class="actions">
       <button type="button" class="btn danger" id="fDelete" data-action="delete-tx">Удалить</button>
+      <button type="button" class="btn" id="fMarkPaid" data-action="mark-bill">Уже оплачен раньше</button>
       <span class="spacer"></span>
       <button type="button" class="btn" data-action="close-sheet">Отмена</button>
       <button type="submit" class="btn primary">Сохранить</button>
+    </div>
+  </form>
+</div>
+
+<div class="overlay" id="formSheet" hidden>
+  <form class="sheet" id="genForm" role="dialog" aria-modal="true" aria-labelledby="gTitle" novalidate>
+    <h2 id="gTitle"></h2>
+    <div class="form-body" id="gBody"></div>
+    <p class="error" id="gErr" hidden></p>
+    <div class="actions">
+      <button type="button" class="btn danger" id="gDelete">Удалить</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="gCancel">Отмена</button>
+      <button type="submit" class="btn primary" id="gSubmit">Сохранить</button>
     </div>
   </form>
 </div>
@@ -318,6 +390,8 @@ function shiftMonth(month, delta) {
   const d = new Date(y, m - 1 + delta, 1);
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 }
+const toDate = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const daysBetween = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
 function uid() {
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
@@ -327,6 +401,7 @@ const MONTHS_SHORT = ["янв", "фев", "мар", "апр", "май", "июн"
 const MONTHS_GEN = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 const WEEKDAYS = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
 const monthLabel = (m) => `${MONTHS[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
+const shortDate = (d) => `${Number(d.slice(8, 10))} ${MONTHS_SHORT[Number(d.slice(5, 7)) - 1]}`;
 function dayLabel(date) {
   const today = todayISO();
   if (date === today) return "Сегодня";
@@ -335,6 +410,10 @@ function dayLabel(date) {
   const [yy, mm, dd] = date.split("-").map(Number);
   const wd = WEEKDAYS[new Date(yy, mm - 1, dd).getDay()];
   return `${dd} ${MONTHS_GEN[mm - 1]}${String(yy) === today.slice(0, 4) ? "" : " " + yy}, ${wd}`;
+}
+function plural(n, one, few, many) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many;
 }
 const nf = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 });
 const cf = new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 });
@@ -345,51 +424,132 @@ function parseAmount(input) {
   return /^\d+(\.\d{0,2})?$/.test(s) ? Number(s) : NaN;
 }
 const sumBy = (list, kind) => list.reduce((a, t) => (t.kind === kind ? a + t.amount : a), 0);
+const num = (v, d = 0) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : d);
 
 // ---------- data model ----------
 const PALETTE = ["#0f766e", "#2563eb", "#d97706", "#dc2626", "#7c3aed", "#db2777", "#059669", "#0891b2", "#65a30d", "#ea580c", "#64748b"];
 const DEFAULT_CATEGORIES = [
   ["Продукты", "expense"], ["Кафе и рестораны", "expense"], ["Транспорт", "expense"], ["Жильё и коммуналка", "expense"],
+  ["Кредиты", "expense"], ["Детский сад", "expense"], ["Семья", "expense"],
   ["Связь и интернет", "expense"], ["Здоровье", "expense"], ["Одежда", "expense"], ["Развлечения", "expense"],
   ["Подписки", "expense"], ["Другое", "expense"],
-  ["Зарплата", "income"], ["Фриланс", "income"], ["Подарки", "income"], ["Другое", "income"],
+  ["Проекты", "income"], ["Подарки", "income"], ["Другое", "income"],
+];
+const DEFAULT_ENVELOPES = [
+  ["Резерв на непредвиденное", 10], ["Подушка безопасности", 40], ["Квартира", 30], ["Путешествия", 20],
 ];
 const defaultProfile = () => ({
   version: 1, currency: "₸", budgets: {},
   categories: DEFAULT_CATEGORIES.map(([name, kind], i) => ({ id: uid(), name, kind, color: PALETTE[i % PALETTE.length] })),
+  bills: [],
+  envelopes: DEFAULT_ENVELOPES.map(([name, share]) => ({ id: uid(), name, target: 0, share, opening: 0 })),
+  living: 0, bufferMonths: 1, openingFree: 0, marked: {},
 });
 const isKind = (v) => v === "income" || v === "expense";
+const isId = (v) => typeof v === "string" && /^[A-Za-z0-9_\-.~:@+]{1,200}$/.test(v);
 function parseProfile(raw) {
   if (!raw || typeof raw !== "object" || !Array.isArray(raw.categories)) return null;
-  const categories = raw.categories.filter((c) => c && typeof c.id === "string" && typeof c.name === "string" && isKind(c.kind) && typeof c.color === "string")
+  const categories = raw.categories.filter((c) => c && isId(c.id) && typeof c.name === "string" && isKind(c.kind) && typeof c.color === "string")
     .map((c) => ({ id: c.id, name: c.name, kind: c.kind, color: c.color }));
   const ids = new Set(categories.map((c) => c.id));
   const budgets = {};
   for (const [id, v] of Object.entries(raw.budgets && typeof raw.budgets === "object" ? raw.budgets : {})) {
     if (ids.has(id) && typeof v === "number" && v > 0) budgets[id] = v;
   }
+  const bills = (Array.isArray(raw.bills) ? raw.bills : [])
+    .filter((b) => b && isId(b.id) && typeof b.name === "string" && num(b.amount) > 0 && Number.isInteger(b.day) && b.day >= 1 && b.day <= 31)
+    .map((b) => ({ id: b.id, name: b.name, amount: b.amount, day: b.day, categoryId: typeof b.categoryId === "string" ? b.categoryId : "" }));
+  const envelopes = (Array.isArray(raw.envelopes) ? raw.envelopes : [])
+    .filter((e) => e && isId(e.id) && typeof e.name === "string")
+    .map((e) => ({ id: e.id, name: e.name, target: num(e.target), share: Math.min(100, num(e.share)), opening: num(e.opening) }));
   const currency = typeof raw.currency === "string" && raw.currency.trim() ? raw.currency.slice(0, 4) : "₸";
-  return { version: 1, currency, budgets, categories };
+  const marked = {};
+  for (const [m, list] of Object.entries(raw.marked && typeof raw.marked === "object" ? raw.marked : {})) {
+    if (/^\d{4}-\d{2}$/.test(m) && Array.isArray(list)) marked[m] = list.filter((x) => typeof x === "string");
+  }
+  return {
+    version: 1, currency, budgets, categories, bills, envelopes,
+    living: num(raw.living), bufferMonths: Math.min(12, num(raw.bufferMonths, 1)), openingFree: num(raw.openingFree), marked,
+  };
 }
 function parseTx(raw, id) {
   if (!raw || typeof raw !== "object") return null;
   const tx = {
     id: String(id ?? raw.id ?? ""),
-    kind: raw.kind, amount: raw.amount, categoryId: raw.categoryId, date: raw.date,
+    kind: raw.kind, amount: raw.amount, date: raw.date,
+    categoryId: typeof raw.categoryId === "string" ? raw.categoryId : "",
     note: typeof raw.note === "string" ? raw.note : "",
     createdAt: Number(raw.createdAt) || 0,
   };
+  for (const k of ["project", "billId", "envelopeId", "sourceTxId"]) if (typeof raw[k] === "string" && raw[k]) tx[k] = raw[k];
   if (raw.sample === true) tx.sample = true;
-  const ok = /^[A-Za-z0-9_\-.~:@+]{1,200}$/.test(tx.id) && isKind(tx.kind) && typeof tx.amount === "number" && Number.isFinite(tx.amount) &&
-    tx.amount > 0 && typeof tx.categoryId === "string" && typeof tx.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(tx.date);
+  if (raw.kind === "transfer") {
+    tx.from = typeof raw.from === "string" ? raw.from : "";
+    tx.to = typeof raw.to === "string" ? raw.to : "";
+    if (tx.from === tx.to) return null;
+  }
+  const ok = isId(tx.id) && (isKind(tx.kind) || tx.kind === "transfer") && typeof tx.amount === "number" && Number.isFinite(tx.amount) &&
+    tx.amount > 0 && /^\d{4}-\d{2}-\d{2}$/.test(tx.date) && (tx.kind === "transfer" || tx.categoryId);
   return ok ? tx : null;
 }
 const txBody = (tx) => { const { id, ...body } = tx; return body; };
 
 const app = { profile: defaultProfile(), profileSaved: false, txs: [], backend: "loading", ready: false, pending: 0 };
-const ui = { tab: "ops", period: currentMonth(), fKind: "all", fCat: "", query: "", statsKind: "expense", editing: null, sheetKind: "expense" };
+const ui = { tab: "plan", period: currentMonth(), fKind: "all", fCat: "", query: "", statsKind: "expense", editing: null, sheetKind: "expense", sheetBillId: "" };
 const catMap = () => new Map(app.profile.categories.map((c) => [c.id, c]));
 const inPeriod = (t) => ui.period === "all" || t.date.startsWith(ui.period);
+const flows = () => app.txs.filter((t) => t.kind !== "transfer");
+
+// ---------- money math: free money vs envelopes ----------
+function envBalances() {
+  const m = new Map(app.profile.envelopes.map((e) => [e.id, e.opening]));
+  for (const t of app.txs) {
+    if (t.kind === "transfer") {
+      if (m.has(t.to)) m.set(t.to, m.get(t.to) + t.amount);
+      if (m.has(t.from)) m.set(t.from, m.get(t.from) - t.amount);
+    } else if (t.kind === "expense" && t.envelopeId && m.has(t.envelopeId)) {
+      m.set(t.envelopeId, m.get(t.envelopeId) - t.amount);
+    }
+  }
+  return m;
+}
+function totalBalance() {
+  const p = app.profile;
+  return p.openingFree + p.envelopes.reduce((a, e) => a + e.opening, 0) + sumBy(app.txs, "income") - sumBy(app.txs, "expense");
+}
+function freeMoney() {
+  let s = totalBalance();
+  for (const v of envBalances().values()) s -= v;
+  return s;
+}
+const envName = (id) => (id ? app.profile.envelopes.find((e) => e.id === id)?.name || "Удалённый конверт" : "Свободные");
+const billsTotal = () => app.profile.bills.reduce((a, b) => a + b.amount, 0);
+const monthlyMinimum = () => billsTotal() + app.profile.living;
+function billDue(b, month) {
+  const [y, m] = month.split("-").map(Number);
+  return `${month}-${pad(Math.min(b.day, new Date(y, m, 0).getDate()))}`;
+}
+/** A bill counts as paid by a recorded payment, or by a mark for money that left before tracking started. */
+const billPayment = (b, month) => app.txs.find((t) => t.kind === "expense" && t.billId === b.id && t.date.startsWith(month)) ||
+  ((app.profile.marked[month] || []).includes(b.id) ? { marked: true } : null);
+function unpaidBills(month) {
+  return app.profile.bills.filter((b) => !billPayment(b, month)).map((b) => ({ b, due: billDue(b, month) })).sort((x, y) => x.due.localeCompare(y.due));
+}
+/** Income suggestion: first top free money up to the buffer, then split the rest by envelope shares (capped by targets). */
+function suggestAllocation(amount) {
+  const p = app.profile, bal = envBalances();
+  const freeBefore = freeMoney() - amount;
+  const unpaidNow = unpaidBills(currentMonth()).reduce((a, x) => a + x.b.amount, 0);
+  const bufferTarget = unpaidNow + p.bufferMonths * monthlyMinimum();
+  const keep = Math.min(amount, Math.max(0, bufferTarget - freeBefore));
+  const surplus = amount - keep;
+  const parts = p.envelopes.map((e) => {
+    let give = Math.floor((surplus * e.share) / 100);
+    if (e.target > 0) give = Math.min(give, Math.max(0, Math.floor(e.target - bal.get(e.id))));
+    return { e, give };
+  });
+  return { keep, bufferTarget, freeBefore, parts };
+}
 
 // ---------- storage: private per-person store in the account, browser as a fallback ----------
 const LOCAL_KEY = "finance-tracker:v1";
@@ -427,15 +587,18 @@ function persistProfile() {
     queue(() => profileRef.set(body));
   } else saveLocal();
 }
-function upsertTx(tx) {
-  const i = app.txs.findIndex((t) => t.id === tx.id);
-  if (i >= 0) app.txs[i] = tx; else app.txs.push(tx);
+function upsertTxs(list) {
+  for (const tx of list) {
+    const i = app.txs.findIndex((t) => t.id === tx.id);
+    if (i >= 0) app.txs[i] = tx; else app.txs.push(tx);
+  }
   if (app.backend === "cloud") {
     if (!app.profileSaved) persistProfile();
-    queue(() => txCol.doc(tx.id).set(txBody(tx)));
+    queue(() => inBatches(list, (tx) => txCol.doc(tx.id).set(txBody(tx))));
   } else { app.profileSaved = true; saveLocal(); }
   renderAll();
 }
+const upsertTx = (tx) => upsertTxs([tx]);
 function removeTxs(ids) {
   const set = new Set(ids);
   app.txs = app.txs.filter((t) => !set.has(t.id));
@@ -504,14 +667,11 @@ document.addEventListener("focusout", () => setTimeout(() => { if (deferred.size
 
 function renderAll() {
   renderSync(); renderHeader(); renderSummary();
-  for (const t of ["ops", "stats", "budgets", "settings"]) {
+  for (const t of ["plan", "ops", "stats", "budgets", "settings"]) {
     $(`#view-${t}`).hidden = ui.tab !== t;
     $(`#tab-${t}`).setAttribute("aria-selected", String(ui.tab === t));
   }
-  if (ui.tab === "ops") renderOps();
-  if (ui.tab === "stats") renderStats();
-  if (ui.tab === "budgets") renderBudgets();
-  if (ui.tab === "settings") renderSettings();
+  ({ plan: renderPlan, ops: renderOps, stats: renderStats, budgets: renderBudgets, settings: renderSettings })[ui.tab]();
 }
 function renderSync() {
   const el = $("#sync");
@@ -520,23 +680,124 @@ function renderSync() {
 }
 function renderHeader() {
   const all = ui.period === "all";
+  // The plan always works on the real current month, so the month switcher is hidden there.
+  $("#periodBox").hidden = ui.tab === "plan" || ui.tab === "settings";
   $("#periodLabel").textContent = all ? "Всё время" : monthLabel(ui.period);
   $("#prevMonth").disabled = all; $("#nextMonth").disabled = all;
 }
 function renderSummary() {
-  const list = app.txs.filter(inPeriod);
+  const box = $("#summary");
+  if (ui.tab === "plan" || ui.tab === "settings") { box.hidden = true; return; }
+  box.hidden = false;
+  const list = flows().filter(inPeriod);
   const inc = sumBy(list, "income"), exp = sumBy(list, "expense");
-  const total = sumBy(app.txs, "income") - sumBy(app.txs, "expense");
   const net = inc - exp;
-  $("#summary").innerHTML = `
-    <div class="tile balance"><span class="muted">Общий баланс</span><strong>${esc(money(total))}</strong>
+  box.innerHTML = `
+    <div class="tile balance"><span class="muted">Все деньги</span><strong>${esc(money(totalBalance()))}</strong>
       ${ui.period !== "all" ? `<span class="small">За месяц: <b>${esc(signed(net))}</b></span>` : ""}</div>
     <div class="tile"><span class="muted">Доходы</span><strong class="pos">${esc(money(inc))}</strong></div>
     <div class="tile"><span class="muted">Расходы</span><strong class="neg">${esc(money(exp))}</strong></div>`;
 }
 
+function renderPlan() {
+  const el = $("#view-plan");
+  if (!canRender(el, "plan")) return;
+  if (!app.ready) { el.innerHTML = `<p class="empty">Загружаю твой план…</p>`; return; }
+  const p = app.profile, month = currentMonth(), today = todayISO();
+  const free = freeMoney(), total = totalBalance(), bal = envBalances();
+  const unpaid = unpaidBills(month);
+  const unpaidSum = unpaid.reduce((a, x) => a + x.b.amount, 0);
+  const after = free - unpaidSum;
+  const minimum = monthlyMinimum();
+  const runway = minimum > 0 ? total / minimum : 0;
+
+  // 1. Hero: can I cover this month?
+  let verdict;
+  if (!p.bills.length) verdict = `<div class="verdict">Добавь обязательные платежи ниже, и здесь появится ответ, хватает ли денег до конца месяца.</div>`;
+  else if (!unpaid.length) verdict = `<div class="verdict good">Все обязательные платежи за ${MONTHS[Number(month.slice(5)) - 1].toLowerCase()} оплачены.</div>`;
+  else if (after >= 0) verdict = `<div class="verdict good">Свободных денег хватает на все оставшиеся платежи месяца. После них останется ${esc(money(after))}.</div>`;
+  else verdict = `<div class="verdict bad">До конца месяца не хватает ${esc(money(-after))} на обязательные платежи. Пока доход не пришёл, можно взять из конверта «${esc(p.envelopes[0]?.name || "Резерв")}» или сократить необязательные траты.</div>`;
+  let html = `<div class="card plan-hero">
+    <div><span class="muted small">Свободные деньги</span><div class="big ${free < 0 ? "neg" : ""}">${esc(money(free))}</div></div>
+    <div class="kv small">
+      <div><span class="muted">Осталось оплатить в этом месяце</span><span>${esc(money(unpaidSum))}</span></div>
+      <div><span class="muted">Отложено в конвертах</span><span>${esc(money(total - free))}</span></div>
+      ${minimum > 0 ? `<div><span class="muted">Всех денег хватит</span><span>${runway < 0.1 ? "меньше чем на месяц" : `≈ ${nf.format(Math.round(runway * 10) / 10)} мес.`}</span></div>` : ""}
+    </div>${verdict}</div>`;
+
+  // 2. Bills calendar
+  let running = 0;
+  const unpaidIds = new Set(unpaid.map((x) => x.b.id));
+  const rows = p.bills.map((b) => ({ b, due: billDue(b, month) })).sort((x, y) => x.due.localeCompare(y.due) || x.b.name.localeCompare(y.b.name)).map(({ b, due }) => {
+    const paidTx = billPayment(b, month);
+    let status;
+    if (paidTx) status = `<span class="status pos">${paidTx.marked ? "Отмечено оплаченным" : "Оплачено " + esc(shortDate(paidTx.date))}</span>`;
+    else {
+      running += b.amount;
+      const left = daysBetween(today, due);
+      const when = left < 0 ? `<span class="status neg">Просрочено на ${-left} ${plural(-left, "день", "дня", "дней")}</span>`
+        : left === 0 ? `<span class="status warn">Сегодня</span>` : `<span class="status muted">Через ${left} ${plural(left, "день", "дня", "дней")}</span>`;
+      const cover = running <= free ? `<span class="status muted"> · хватает</span>` : `<span class="status neg"> · не хватает ${esc(money(Math.min(b.amount, running - Math.max(free, 0))))}</span>`;
+      status = when + cover;
+    }
+    return `<li class="bill ${paidTx ? "paid" : ""}">
+      <div class="due"><b>${Number(due.slice(8))}</b><span>${MONTHS_SHORT[Number(due.slice(5, 7)) - 1]}</span></div>
+      <div class="bill-main"><div class="bill-top"><span class="bill-name">${esc(b.name)}</span><span class="bill-amt">${esc(money(b.amount))}</span></div>
+        <span class="small">${status}</span></div>
+      <div class="bill-side">
+        ${unpaidIds.has(b.id) ? `<button class="btn sm primary" data-action="pay-bill" data-id="${esc(b.id)}">Оплатить</button>` : ""}
+        ${paidTx && paidTx.marked ? `<button class="link-btn small" data-action="unmark-bill" data-id="${esc(b.id)}">Снять отметку</button>` : ""}
+        <button class="icon-btn sm" data-action="edit-bill" data-id="${esc(b.id)}" aria-label="Изменить платёж ${esc(b.name)}">✎</button></div></li>`;
+  }).join("");
+  html += `<div class="card"><div class="card-head"><h3>Обязательные · ${esc(monthLabel(month))}</h3><span class="muted small">${esc(money(billsTotal()))} в месяц</span></div>
+    ${p.bills.length ? `<ul class="bill-list">${rows}</ul>` : `<p class="muted small">Аренда, садик, кредиты, всё, что нужно платить каждый месяц.</p>`}
+    <div class="card-foot"><button class="btn sm" data-action="new-bill">+ Добавить платёж</button>
+      ${p.bills.length ? `<span class="muted small">Оплачено ${esc(money(billsTotal() - unpaidSum))} из ${esc(money(billsTotal()))}</span>` : ""}</div></div>`;
+
+  // 3. Envelopes
+  const shareSum = p.envelopes.reduce((a, e) => a + e.share, 0);
+  html += `<div class="card"><div class="card-head"><h3>Конверты</h3><span class="muted small">Излишек дохода делится: ${shareSum}%</span></div>
+    ${p.envelopes.length ? `<ul class="env-list">` + p.envelopes.map((e) => {
+      const b = bal.get(e.id), ratio = e.target > 0 ? Math.max(0, b) / e.target : 0;
+      return `<li class="env"><div class="env-head"><span class="env-name">${esc(e.name)}</span><span class="env-bal">${esc(money(b))}</span></div>
+        ${e.target > 0 ? `<div class="progress"><div class="progress-fill goal" style="width:${Math.min(ratio, 1) * 100}%"></div></div>` : ""}
+        <div class="env-meta small"><span class="muted">${e.target > 0 ? `Цель ${esc(money(e.target))} · ${Math.round(ratio * 100)}%` : "Без цели"} · доля ${e.share}%</span>
+          <span class="btn-row"><button class="link-btn" data-action="env-in" data-id="${esc(e.id)}">Пополнить</button>
+          <button class="link-btn" data-action="env-out" data-id="${esc(e.id)}">Взять</button>
+          <button class="link-btn" data-action="edit-env" data-id="${esc(e.id)}">Изменить</button></span></div></li>`;
+    }).join("") + `</ul>` : `<p class="muted small">Конверты держат деньги на цели отдельно от свободных.</p>`}
+    ${shareSum > 100 ? `<p class="small neg" style="margin-top:8px">Сумма долей больше 100%. Уменьши доли, чтобы распределение сходилось.</p>` : ""}
+    <div class="card-foot"><button class="btn sm" data-action="new-env">+ Новый конверт</button></div></div>`;
+
+  // 4. Income vs minimum
+  const months = Array.from({ length: 6 }, (_, i) => shiftMonth(month, i - 6));
+  const incomes = months.map((m) => sumBy(flows().filter((t) => t.date.startsWith(m)), "income"));
+  const withData = incomes.filter((v) => v > 0);
+  let incomeHtml;
+  if (withData.length < 2) incomeHtml = `<p class="muted small">Вноси доходы с указанием проекта. Через пару месяцев здесь появятся средний и минимальный доход и сравнение с обязательными расходами.</p>`;
+  else {
+    const avg = withData.reduce((a, v) => a + v, 0) / withData.length, min = Math.min(...withData);
+    const diff = avg - minimum;
+    incomeHtml = `<div class="kv small">
+      <div><span class="muted">Средний доход (${withData.length} ${plural(withData.length, "месяц", "месяца", "месяцев")})</span><span>${esc(money(Math.round(avg)))}</span></div>
+      <div><span class="muted">Худший месяц</span><span>${esc(money(min))}</span></div>
+      <div><span class="muted">Нужно в месяц (обязательные${p.living ? " + жизнь" : ""})</span><span>${esc(money(minimum))}</span></div></div>
+      <div class="verdict ${diff >= 0 ? "good" : "bad"}" style="margin-top:10px">${diff >= 0
+        ? `В среднем после обязательных расходов остаётся ${esc(money(Math.round(diff)))} в месяц на конверты.`
+        : `В среднем доход ниже нужного на ${esc(money(Math.round(-diff)))} в месяц. Разницу сейчас покрывают накопления.`}</div>`;
+  }
+  html += `<div class="card"><h3>Доход и минимум на месяц</h3>${incomeHtml}</div>`;
+
+  // 5. Parameters
+  html += `<div class="card"><h3>Параметры плана</h3><div class="params">
+    <label>На жизнь в месяц (еда, транспорт, бытовое)<input id="pLiving" inputmode="decimal" value="${p.living || ""}" placeholder="Например, 250 000"></label>
+    <label>Буфер свободных денег, месяцев<input id="pBuffer" inputmode="decimal" value="${p.bufferMonths}"></label>
+    <label>Свободных денег было на старте<input id="pOpening" inputmode="decimal" value="${p.openingFree || ""}" placeholder="0"></label></div>
+    <p class="muted small" style="margin-top:10px">Когда приходит доход, свободные деньги сначала добираются до буфера: неоплаченные платежи этого месяца плюс ${nf.format(p.bufferMonths)} × (обязательные${p.living ? " + жизнь" : ""}). Всё, что сверху, раскладывается по конвертам в процентах.</p></div>`;
+  el.innerHTML = html;
+}
+
 function renderOps() {
-  // category filter options
   const sel = $("#fCat");
   if (canRender(sel.parentElement, "filters")) {
     const cats = app.profile.categories.filter((c) => ui.fKind === "all" || c.kind === ui.fKind);
@@ -559,10 +820,11 @@ function renderOps() {
   const cats = catMap();
   const q = ui.query.trim().toLowerCase();
   const periodList = app.txs.filter(inPeriod);
+  const label = (t) => t.kind === "transfer" ? `${envName(t.from)} → ${envName(t.to)}` : cats.get(t.categoryId)?.name || "Без категории";
   const list = periodList
     .filter((t) => ui.fKind === "all" || t.kind === ui.fKind)
     .filter((t) => !ui.fCat || t.categoryId === ui.fCat)
-    .filter((t) => !q || t.note.toLowerCase().includes(q) || (cats.get(t.categoryId)?.name.toLowerCase().includes(q) ?? false))
+    .filter((t) => !q || [t.note, t.project || "", label(t)].some((s) => s.toLowerCase().includes(q)))
     .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
   const groups = new Map();
   for (const t of list) (groups.get(t.date) || groups.set(t.date, []).get(t.date)).push(t);
@@ -570,14 +832,21 @@ function renderOps() {
   let html = samples ? `<div class="banner"><span>Сейчас показаны примерные данные.</span><button class="link-btn" data-action="clear-sample">Удалить примеры</button></div>` : "";
   if (!groups.size) html += `<p class="empty">${periodList.length ? "Ничего не найдено." : "За этот период операций нет. Нажми «+», чтобы добавить."}</p>`;
   for (const [date, items] of groups) {
-    const daySum = items.reduce((a, t) => a + (t.kind === "income" ? t.amount : -t.amount), 0);
-    html += `<div class="day"><div class="day-head"><span>${esc(dayLabel(date))}</span><span class="${daySum < 0 ? "neg" : "pos"}">${esc(signed(daySum))}</span></div><ul class="tx-list">`;
+    const daySum = items.reduce((a, t) => a + (t.kind === "income" ? t.amount : t.kind === "expense" ? -t.amount : 0), 0);
+    html += `<div class="day"><div class="day-head"><span>${esc(dayLabel(date))}</span><span class="${daySum < 0 ? "neg" : daySum > 0 ? "pos" : "muted"}">${esc(signed(daySum))}</span></div><ul class="tx-list">`;
     for (const t of items) {
+      if (t.kind === "transfer") {
+        html += `<li><button class="tx" data-action="edit-move" data-id="${esc(t.id)}"><span class="dot" style="background:var(--muted)"></span>
+          <span class="tx-main"><span class="tx-cat">${esc(label(t))}</span><span class="tx-note">${esc(t.note || "Перевод между конвертами")}</span></span>
+          <span class="tx-amount move">${esc(money(t.amount))}</span></button></li>`;
+        continue;
+      }
       const c = cats.get(t.categoryId);
+      const sub = [t.project, t.envelopeId ? `из «${envName(t.envelopeId)}»` : "", t.note].filter(Boolean).join(" · ");
       html += `<li><button class="tx" data-action="edit-tx" data-id="${esc(t.id)}">
         <span class="dot" style="background:${esc(c ? c.color : "#94a3b8")}"></span>
-        <span class="tx-main"><span class="tx-cat">${esc(c ? c.name : "Без категории")}${t.sample ? `<span class="tag">пример</span>` : ""}</span>
-        ${t.note ? `<span class="tx-note">${esc(t.note)}</span>` : ""}</span>
+        <span class="tx-main"><span class="tx-cat">${esc(label(t))}${t.sample ? `<span class="tag">пример</span>` : ""}${t.billId ? `<span class="tag">обязательный</span>` : ""}</span>
+        ${sub ? `<span class="tx-note">${esc(sub)}</span>` : ""}</span>
         <span class="tx-amount ${t.kind === "income" ? "pos" : ""}">${t.kind === "income" ? "+" : "−"}${esc(money(t.amount))}</span></button></li>`;
     }
     html += `</ul></div>`;
@@ -589,7 +858,7 @@ function renderStats() {
   const el = $("#view-stats");
   const cats = catMap();
   const totals = new Map();
-  for (const t of app.txs) if (inPeriod(t) && t.kind === ui.statsKind) totals.set(t.categoryId, (totals.get(t.categoryId) || 0) + t.amount);
+  for (const t of flows()) if (inPeriod(t) && t.kind === ui.statsKind) totals.set(t.categoryId, (totals.get(t.categoryId) || 0) + t.amount);
   const slices = [...totals].map(([id, value]) => ({ c: cats.get(id) || { id, name: "Без категории", color: "#94a3b8" }, value })).sort((a, b) => b.value - a.value);
   const total = slices.reduce((a, s) => a + s.value, 0);
 
@@ -611,7 +880,7 @@ function renderStats() {
   const last = ui.period === "all" ? currentMonth() : ui.period;
   const months = Array.from({ length: 6 }, (_, i) => {
     const m = shiftMonth(last, i - 5);
-    const list = app.txs.filter((t) => t.date.startsWith(m));
+    const list = flows().filter((t) => t.date.startsWith(m));
     return { m, inc: sumBy(list, "income"), exp: sumBy(list, "expense") };
   });
   const max = Math.max(1, ...months.flatMap((x) => [x.inc, x.exp]));
@@ -623,13 +892,32 @@ function renderStats() {
       <span class="bar-net ${net < 0 ? "neg" : net > 0 ? "pos" : "muted"}">${net > 0 ? "+" : ""}${esc(cf.format(net))}</span></div>`;
   }).join("");
 
+  // Projects over the last 6 months: who pays, how much, and who went quiet.
+  const from = shiftMonth(currentMonth(), -5) + "-01", today = todayISO();
+  const projects = new Map();
+  for (const t of flows()) {
+    if (t.kind !== "income" || t.date < from) continue;
+    const key = t.project || "Без проекта";
+    const p = projects.get(key) || { sum: 0, count: 0, last: "" };
+    p.sum += t.amount; p.count++; if (t.date > p.last) p.last = t.date;
+    projects.set(key, p);
+  }
+  const projRows = [...projects].sort((a, b) => b[1].sum - a[1].sum).map(([name, p]) => {
+    const idle = daysBetween(p.last, today);
+    return `<li class="proj"><span class="proj-name">${esc(name)}${idle > 45 ? `<span class="tag" style="color:var(--warn)">нет оплат ${idle} ${plural(idle, "день", "дня", "дней")}</span>` : ""}</span>
+      <span class="proj-sum">${esc(money(p.sum))}</span>
+      <span class="muted small">${p.count} ${plural(p.count, "оплата", "оплаты", "оплат")} · последняя ${esc(shortDate(p.last))}</span><span></span></li>`;
+  }).join("");
+
   el.innerHTML = `
     <div class="card"><div class="card-head"><h3>По категориям</h3>
       <div class="segmented"><button data-action="stats-kind" data-kind="expense" class="${ui.statsKind === "expense" ? "active" : ""}">Расходы</button>
       <button data-action="stats-kind" data-kind="income" class="${ui.statsKind === "income" ? "active" : ""}">Доходы</button></div></div>${donut}</div>
     <div class="card"><div class="card-head"><h3>Последние 6 месяцев</h3>
       <div class="chart-legend small"><span><i class="swatch inc"></i>Доходы</span><span><i class="swatch exp"></i>Расходы</span></div></div>
-      <div class="bars">${bars}</div></div>`;
+      <div class="bars">${bars}</div></div>
+    <div class="card"><div class="card-head"><h3>Доход по проектам</h3><span class="muted small">за 6 месяцев</span></div>
+      ${projRows ? `<ul class="proj-list">${projRows}</ul>` : `<p class="muted small">Указывай проект при добавлении дохода. Здесь будет видно, кто сколько приносит и какой проект давно не платил.</p>`}</div>`;
 }
 
 function progress(value, limit) {
@@ -664,14 +952,15 @@ function renderSettings() {
   if (!canRender(el, "settings")) return;
   const used = new Map();
   for (const t of app.txs) used.set(t.categoryId, (used.get(t.categoryId) || 0) + 1);
+  for (const b of app.profile.bills) used.set(b.categoryId, (used.get(b.categoryId) || 0) + 1);
   const group = (kind, title) => `<div class="cat-group"><h4>${title}</h4><ul class="cat-list">` +
     app.profile.categories.filter((c) => c.kind === kind).map((c) => {
       const n = used.get(c.id) || 0;
       return `<li class="cat-row"><input type="color" id="color-${esc(c.id)}" data-cat-color="${esc(c.id)}" value="${esc(c.color)}" aria-label="Цвет категории ${esc(c.name)}">
         <input class="cat-name" id="name-${esc(c.id)}" data-cat-name="${esc(c.id)}" value="${esc(c.name)}" maxlength="40" aria-label="Название категории">
-        <span class="muted small cat-used" title="Операций в категории">${n || ""}</span>
+        <span class="muted small cat-used" title="Операций и платежей в категории">${n || ""}</span>
         <button class="icon-btn" data-action="delete-cat" data-id="${esc(c.id)}" ${n ? "disabled" : ""} aria-label="Удалить категорию ${esc(c.name)}"
-          title="${n ? "В категории есть операции. Сначала перенеси или удали их." : "Удалить"}">×</button></li>`;
+          title="${n ? "Категория используется. Сначала перенеси или удали операции и платежи." : "Удалить"}">×</button></li>`;
     }).join("") + `</ul></div>`;
   const where = app.backend === "cloud"
     ? "Данные хранятся в твоём аккаунте Claude и видны только тебе. Они доступны с любого устройства, где ты открываешь эту страницу."
@@ -692,26 +981,36 @@ function renderSettings() {
       </div></div>`;
 }
 
-// ---------- sheet (add / edit) ----------
-function fillCategorySelect(selected) {
+// ---------- operation sheet (add / edit) ----------
+function syncSheetKind(selectedCat) {
   const cats = app.profile.categories.filter((c) => c.kind === ui.sheetKind);
   const sel = $("#fCategory");
   sel.innerHTML = cats.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
-  sel.value = cats.some((c) => c.id === selected) ? selected : cats[0] ? cats[0].id : "";
+  sel.value = cats.some((c) => c.id === selectedCat) ? selectedCat : cats[0] ? cats[0].id : "";
   document.querySelectorAll("#sKind button").forEach((b) => b.classList.toggle("active", b.dataset.kind === ui.sheetKind));
+  $("#fProjectWrap").hidden = ui.sheetKind !== "income";
+  $("#fEnvelopeWrap").hidden = ui.sheetKind !== "expense" || !app.profile.envelopes.length;
 }
-function openSheet(tx) {
+function openSheet(tx, preset) {
+  const src = tx || preset || {};
   ui.editing = tx;
-  ui.sheetKind = tx ? tx.kind : "expense";
-  $("#sheetTitle").textContent = tx ? "Изменить операцию" : "Новая операция";
+  ui.sheetKind = src.kind || "expense";
+  ui.sheetBillId = src.billId || "";
+  $("#sheetTitle").textContent = tx ? "Изменить операцию" : preset && preset.billId ? `Оплата: ${preset.note}` : "Новая операция";
   $("#sCurrency").textContent = app.profile.currency;
-  $("#fAmount").value = tx ? String(tx.amount).replace(".", ",") : "";
+  $("#fAmount").value = src.amount ? String(src.amount).replace(".", ",") : "";
   const d = ui.period === "all" || ui.period === currentMonth() ? todayISO() : `${ui.period}-01`;
-  $("#fDate").value = tx ? tx.date : d;
-  $("#fNote").value = tx ? tx.note : "";
+  $("#fDate").value = src.date || d;
+  $("#fNote").value = src.note || "";
+  $("#fProject").value = src.project || "";
+  const projects = [...new Set(app.txs.filter((t) => t.project).sort((a, b) => b.date.localeCompare(a.date)).map((t) => t.project))];
+  $("#projectList").innerHTML = projects.map((p) => `<option value="${esc(p)}"></option>`).join("");
+  $("#fEnvelope").innerHTML = `<option value="">Свободные деньги</option>` + app.profile.envelopes.map((e) => `<option value="${esc(e.id)}">Конверт «${esc(e.name)}»</option>`).join("");
+  $("#fEnvelope").value = app.profile.envelopes.some((e) => e.id === src.envelopeId) ? src.envelopeId : "";
   $("#fDelete").hidden = !tx;
+  $("#fMarkPaid").hidden = !!tx || !ui.sheetBillId;
   $("#fErr").hidden = true;
-  fillCategorySelect(tx ? tx.categoryId : "");
+  syncSheetKind(src.categoryId || "");
   $("#sheet").hidden = false;
   $("#fAmount").focus();
 }
@@ -727,9 +1026,145 @@ $("#txForm").addEventListener("submit", (e) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return sheetError("Укажи дату.");
   const prev = ui.editing;
   const tx = { id: prev ? prev.id : uid(), kind: ui.sheetKind, amount, categoryId, date, note: $("#fNote").value.trim(), createdAt: prev ? prev.createdAt : Date.now() };
+  if (tx.kind === "income" && $("#fProject").value.trim()) tx.project = $("#fProject").value.trim();
+  if (tx.kind === "expense" && $("#fEnvelope").value) tx.envelopeId = $("#fEnvelope").value;
+  if (tx.kind === "expense" && ui.sheetBillId) tx.billId = ui.sheetBillId;
+  if (prev && prev.sample) tx.sample = true;
   closeSheet();
   upsertTx(tx);
+  if (!prev && tx.kind === "income" && app.profile.envelopes.length) openAllocation(tx);
 });
+
+// ---------- generic form sheet (bills, envelopes, transfers, allocation) ----------
+let gForm = null;
+function openForm(cfg) {
+  gForm = cfg;
+  $("#gTitle").textContent = cfg.title;
+  $("#gBody").innerHTML = cfg.body;
+  $("#gSubmit").textContent = cfg.submit || "Сохранить";
+  $("#gCancel").textContent = cfg.cancel || "Отмена";
+  $("#gDelete").hidden = !cfg.onDelete;
+  $("#gErr").hidden = true;
+  $("#formSheet").hidden = false;
+  if (cfg.onInput) cfg.onInput();
+  const first = $("#gBody").querySelector("input, select");
+  if (first) first.focus();
+}
+function closeForm() { $("#formSheet").hidden = true; gForm = null; }
+const gVal = (id) => { const el = document.getElementById("g-" + id); return el ? el.value.trim() : ""; };
+function formError(msg) { const e = $("#gErr"); e.textContent = msg; e.hidden = false; }
+$("#genForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!gForm) return;
+  const err = gForm.onSubmit();
+  if (err) formError(err); else closeForm();
+});
+$("#genForm").addEventListener("input", () => gForm && gForm.onInput && gForm.onInput());
+$("#gCancel").addEventListener("click", () => closeForm());
+$("#gDelete").addEventListener("click", async () => {
+  const cfg = gForm; if (!cfg) return;
+  $("#formSheet").hidden = true;
+  if (await askConfirm(cfg.deleteText, "Удалить")) { gForm = null; cfg.onDelete(); }
+  else $("#formSheet").hidden = false;
+});
+const optCats = (kind, sel) => app.profile.categories.filter((c) => c.kind === kind)
+  .map((c) => `<option value="${esc(c.id)}" ${c.id === sel ? "selected" : ""}>${esc(c.name)}</option>`).join("");
+
+function openBillForm(bill) {
+  const b = bill || { name: "", amount: "", day: 10, categoryId: "" };
+  openForm({
+    title: bill ? "Обязательный платёж" : "Новый обязательный платёж",
+    body: `<label>Название<input id="g-name" maxlength="40" value="${esc(b.name)}" placeholder="Например, аренда"></label>
+      <label>Сумма, ${esc(app.profile.currency)}<input id="g-amount" inputmode="decimal" value="${b.amount}"></label>
+      <label>День месяца<input id="g-day" type="number" min="1" max="31" value="${b.day}"></label>
+      <label>Категория<select id="g-cat">${optCats("expense", b.categoryId)}</select></label>`,
+    onSubmit() {
+      const name = gVal("name"), amount = parseAmount(gVal("amount")), day = Number(gVal("day"));
+      if (!name) return "Введи название платежа.";
+      if (!(amount > 0)) return "Введи сумму больше нуля.";
+      if (!Number.isInteger(day) || day < 1 || day > 31) return "День месяца — число от 1 до 31.";
+      const next = { id: bill ? bill.id : uid(), name, amount, day, categoryId: gVal("cat") };
+      updateProfile((p) => { const i = p.bills.findIndex((x) => x.id === next.id); if (i >= 0) p.bills[i] = next; else p.bills.push(next); });
+    },
+    deleteText: bill ? `Удалить платёж «${bill.name}»? Уже записанные оплаты останутся в операциях.` : "",
+    onDelete: bill ? () => updateProfile((p) => { p.bills = p.bills.filter((x) => x.id !== bill.id); }) : null,
+  });
+}
+function openEnvForm(env) {
+  const e = env || { name: "", target: 0, share: 0, opening: 0 };
+  openForm({
+    title: env ? `Конверт «${env.name}»` : "Новый конверт",
+    body: `<label>Название<input id="g-name" maxlength="40" value="${esc(e.name)}" placeholder="Например, отпуск летом"></label>
+      <label>Цель, ${esc(app.profile.currency)} (можно оставить пустым)<input id="g-target" inputmode="decimal" value="${e.target || ""}"></label>
+      <label>Доля излишка дохода, %<input id="g-share" inputmode="decimal" value="${e.share || ""}" placeholder="0"></label>
+      <label>Уже было отложено до начала учёта, ${esc(app.profile.currency)}<input id="g-opening" inputmode="decimal" value="${e.opening || ""}" placeholder="0"></label>`,
+    onSubmit() {
+      const name = gVal("name");
+      const target = gVal("target") ? parseAmount(gVal("target")) : 0;
+      const share = gVal("share") ? parseAmount(gVal("share")) : 0;
+      const opening = gVal("opening") ? parseAmount(gVal("opening")) : 0;
+      if (!name) return "Введи название конверта.";
+      if (!(target >= 0)) return "Цель — число, например 5 000 000.";
+      if (!(share >= 0 && share <= 100)) return "Доля — число от 0 до 100.";
+      if (!(opening >= 0)) return "Отложенная сумма — число, например 200 000.";
+      const next = { id: env ? env.id : uid(), name, target, share, opening };
+      updateProfile((p) => { const i = p.envelopes.findIndex((x) => x.id === next.id); if (i >= 0) p.envelopes[i] = next; else p.envelopes.push(next); });
+    },
+    deleteText: env ? `Удалить конверт «${env.name}»? Деньги из него вернутся в свободные.` : "",
+    onDelete: env ? () => updateProfile((p) => { p.envelopes = p.envelopes.filter((x) => x.id !== env.id); }) : null,
+  });
+}
+function openMoveForm(env, dir) {
+  const bal = envBalances().get(env.id), free = freeMoney();
+  openForm({
+    title: dir === "in" ? `Пополнить «${env.name}»` : `Взять из «${env.name}»`,
+    body: `<p class="form-intro">${dir === "in" ? `Из свободных денег (сейчас ${esc(money(free))}).` : `В свободные деньги. В конверте ${esc(money(bal))}.`}</p>
+      <label>Сумма, ${esc(app.profile.currency)}<input id="g-amount" inputmode="decimal"></label>
+      <label>Комментарий<input id="g-note" maxlength="200" placeholder="Необязательно"></label>`,
+    submit: dir === "in" ? "Пополнить" : "Взять",
+    onSubmit() {
+      const amount = parseAmount(gVal("amount"));
+      if (!(amount > 0)) return "Введи сумму больше нуля.";
+      if (dir === "out" && amount > bal) return `В конверте только ${money(bal)}.`;
+      upsertTx({ id: uid(), kind: "transfer", amount, from: dir === "in" ? "" : env.id, to: dir === "in" ? env.id : "", date: todayISO(),
+        note: gVal("note") || (dir === "in" ? "Пополнение конверта" : "Взято из конверта"), createdAt: Date.now() });
+    },
+  });
+}
+function openAllocation(tx) {
+  const s = suggestAllocation(tx.amount);
+  const needs = Math.max(0, s.bufferTarget - s.freeBefore);
+  openForm({
+    title: "Распределить доход",
+    body: `<p class="form-intro">Пришло ${esc(money(tx.amount))}${tx.project ? ` от «${esc(tx.project)}»` : ""}.
+        ${needs > 0 ? `Свободным деньгам до буфера не хватает ${esc(money(needs))}, поэтому сначала оставляем их.` : "Буфер свободных денег уже полный."}
+        Остальное делится по конвертам. Суммы можно поправить.</p>` +
+      s.parts.map(({ e, give }) => `<div class="alloc-row"><span>${esc(e.name)} <span class="muted small">${e.share}%</span></span>
+        <input id="g-env-${esc(e.id)}" inputmode="decimal" value="${give || ""}" placeholder="0" aria-label="Сумма в конверт ${esc(e.name)}"></div>`).join("") +
+      `<div class="alloc-left"><span>Останется свободными</span><span id="g-left"></span></div>`,
+    submit: "Распределить", cancel: "Не сейчас",
+    onInput() {
+      const used = s.parts.reduce((a, { e }) => a + (parseAmount(gVal("env-" + e.id)) || 0), 0);
+      const left = tx.amount - used;
+      const el = $("#g-left"); el.textContent = money(left); el.className = left < 0 ? "neg" : "";
+    },
+    onSubmit() {
+      const moves = [];
+      for (const { e } of s.parts) {
+        const raw = gVal("env-" + e.id);
+        if (!raw) continue;
+        const v = parseAmount(raw);
+        if (!(v >= 0)) return `Сумма для «${e.name}» должна быть числом.`;
+        if (v > 0) moves.push({ id: uid(), kind: "transfer", amount: v, from: "", to: e.id, date: tx.date, note: "Распределение дохода", sourceTxId: tx.id, createdAt: Date.now() + moves.length });
+      }
+      if (moves.reduce((a, m) => a + m.amount, 0) > tx.amount) return "Распределено больше, чем пришло.";
+      if (moves.length) { upsertTxs(moves); toast("Доход распределён по конвертам."); }
+    },
+  });
+}
+function payBill(bill) {
+  openSheet(null, { kind: "expense", amount: bill.amount, categoryId: bill.categoryId, note: bill.name, billId: bill.id, date: todayISO() });
+}
 
 // ---------- dialog & toast ----------
 function askConfirm(text, okLabel) {
@@ -751,8 +1186,7 @@ function toast(msg) {
 
 // ---------- files ----------
 function exportData() {
-  return { version: 1, currency: app.profile.currency, categories: app.profile.categories, budgets: app.profile.budgets,
-    transactions: app.txs.filter((t) => !t.sample) };
+  return { ...app.profile, transactions: app.txs.filter((t) => !t.sample) };
 }
 async function saveFile(filename, data) {
   let dl = null;
@@ -780,56 +1214,70 @@ function loadSample() {
   const byName = (name, kind) => app.profile.categories.find((c) => c.name === name && c.kind === kind) || app.profile.categories.find((c) => c.kind === kind);
   const now = new Date(), today = now.getDate();
   const rows = [];
-  const add = (monthsAgo, day, kind, cat, amount, note) => {
+  const add = (monthsAgo, day, kind, cat, amount, note, project) => {
     const d = new Date(now.getFullYear(), now.getMonth() - monthsAgo, Math.min(day, monthsAgo === 0 ? today : 28));
     const c = byName(cat, kind);
-    if (c) rows.push({ id: uid(), kind, amount, categoryId: c.id, date: iso(d), note: "Пример: " + note, createdAt: Date.now() + rows.length, sample: true });
+    if (!c) return;
+    const tx = { id: uid(), kind, amount, categoryId: c.id, date: iso(d), note: "Пример: " + note, createdAt: Date.now() + rows.length, sample: true };
+    if (project) tx.project = project;
+    rows.push(tx);
   };
   for (const m of [2, 1, 0]) {
-    add(m, 5, "income", "Зарплата", 420000, "зарплата");
-    add(m, 6, "expense", "Жильё и коммуналка", 145000, "аренда и коммуналка");
-    add(m, 8, "expense", "Связь и интернет", 7990, "мобильная связь и интернет");
+    add(m, 4, "income", "Проекты", 380000 + m * 40000, "аванс", "Проект А");
+    if (m !== 1) add(m, 19, "income", "Проекты", 250000, "оплата этапа", "Проект Б");
     add(m, 9, "expense", "Продукты", 18450 + m * 2300, "закупка на неделю");
     add(m, 12, "expense", "Кафе и рестораны", 6800 - m * 900, "ужин с друзьями");
     add(m, 14, "expense", "Транспорт", 4200, "такси");
     add(m, 16, "expense", "Продукты", 21300 - m * 1500, "закупка на неделю");
-    add(m, 18, "expense", "Подписки", 2990, "музыка");
-    add(m, 20, "income", "Фриланс", 60000 + m * 25000, "разовый заказ");
-    add(m, 23, "expense", "Развлечения", 9500, "кино и боулинг");
   }
-  if (!app.profileSaved) persistProfile();
-  for (const tx of rows) {
-    app.txs.push(tx);
-    if (app.backend === "cloud") queue(() => txCol.doc(tx.id).set(txBody(tx)));
-  }
-  if (app.backend !== "cloud") saveLocal();
-  renderAll();
+  upsertTxs(rows);
 }
 
 // ---------- events ----------
 document.addEventListener("click", async (e) => {
   const b = e.target.closest("[data-action]");
   if (!b || b.disabled) return;
-  const a = b.dataset.action;
+  const a = b.dataset.action, id = b.dataset.id;
+  const env = () => app.profile.envelopes.find((x) => x.id === id);
   if (a === "tab") { ui.tab = b.dataset.tab; renderAll(); }
   else if (a === "month") { ui.period = shiftMonth(ui.period, Number(b.dataset.delta)); renderAll(); }
   else if (a === "toggle-all") { ui.period = ui.period === "all" ? currentMonth() : "all"; renderAll(); }
   else if (a === "fkind") { ui.fKind = b.dataset.kind; ui.fCat = ""; renderOps(); }
   else if (a === "stats-kind") { ui.statsKind = b.dataset.kind; renderStats(); }
   else if (a === "new-tx") openSheet(null);
-  else if (a === "edit-tx") { const tx = app.txs.find((t) => t.id === b.dataset.id); if (tx) openSheet(tx); }
-  else if (a === "sheet-kind") { ui.sheetKind = b.dataset.kind; fillCategorySelect($("#fCategory").value); }
+  else if (a === "edit-tx") { const tx = app.txs.find((t) => t.id === id); if (tx) openSheet(tx); }
+  else if (a === "edit-move") {
+    const tx = app.txs.find((t) => t.id === id);
+    if (tx && (await askConfirm(`Отменить перевод ${money(tx.amount)}: ${envName(tx.from)} → ${envName(tx.to)}?`, "Отменить перевод"))) removeTxs([tx.id]);
+  }
+  else if (a === "sheet-kind") { ui.sheetKind = b.dataset.kind; syncSheetKind($("#fCategory").value); }
   else if (a === "close-sheet") closeSheet();
   else if (a === "delete-tx") {
     const tx = ui.editing; if (!tx) return;
+    const linked = app.txs.filter((t) => t.sourceTxId === tx.id).map((t) => t.id);
     $("#sheet").hidden = true;
-    if (await askConfirm("Удалить эту операцию?", "Удалить")) { ui.editing = null; removeTxs([tx.id]); }
-    else $("#sheet").hidden = false;
+    if (await askConfirm(linked.length ? "Удалить эту операцию? Её распределение по конвертам тоже отменится." : "Удалить эту операцию?", "Удалить")) {
+      ui.editing = null; removeTxs([tx.id, ...linked]);
+    } else $("#sheet").hidden = false;
   }
+  else if (a === "mark-bill") {
+    const billId = ui.sheetBillId, month = currentMonth();
+    closeSheet();
+    updateProfile((p) => { p.marked[month] = [...new Set([...(p.marked[month] || []), billId])]; });
+    toast("Платёж отмечен оплаченным. Свободные деньги не изменились.");
+  }
+  else if (a === "unmark-bill") updateProfile((p) => { p.marked[currentMonth()] = (p.marked[currentMonth()] || []).filter((x) => x !== id); });
+  else if (a === "pay-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) payBill(bill); }
+  else if (a === "edit-bill") { const bill = app.profile.bills.find((x) => x.id === id); if (bill) openBillForm(bill); }
+  else if (a === "new-bill") openBillForm(null);
+  else if (a === "new-env") openEnvForm(null);
+  else if (a === "edit-env") { if (env()) openEnvForm(env()); }
+  else if (a === "env-in") { if (env()) openMoveForm(env(), "in"); }
+  else if (a === "env-out") { if (env()) openMoveForm(env(), "out"); }
   else if (a === "load-sample") loadSample();
   else if (a === "clear-sample") removeTxs(app.txs.filter((t) => t.sample).map((t) => t.id));
   else if (a === "delete-cat") {
-    const c = app.profile.categories.find((x) => x.id === b.dataset.id);
+    const c = app.profile.categories.find((x) => x.id === id);
     if (c && (await askConfirm(`Удалить категорию «${c.name}»?`, "Удалить"))) {
       updateProfile((p) => { p.categories = p.categories.filter((x) => x.id !== c.id); delete p.budgets[c.id]; });
     }
@@ -837,29 +1285,31 @@ document.addEventListener("click", async (e) => {
   else if (a === "export-json") saveFile(`finance-${todayISO()}.json`, JSON.stringify(exportData(), null, 2));
   else if (a === "export-csv") {
     const cats = catMap(), q = (v) => `"${String(v).replace(/"/g, '""')}"`;
-    const rows = [...app.txs].sort((x, y) => x.date.localeCompare(y.date)).map((t) =>
-      [t.date, t.kind === "income" ? "Доход" : "Расход", q(cats.get(t.categoryId)?.name || ""), String(t.amount).replace(".", ","), q(t.note)].join(";"));
-    saveFile(`finance-${todayISO()}.csv`, "﻿" + ["Дата;Тип;Категория;Сумма;Комментарий", ...rows].join("\r\n"));
+    const rows = flows().sort((x, y) => x.date.localeCompare(y.date)).map((t) =>
+      [t.date, t.kind === "income" ? "Доход" : "Расход", q(cats.get(t.categoryId)?.name || ""), q(t.project || ""), String(t.amount).replace(".", ","), q(t.note)].join(";"));
+    saveFile(`finance-${todayISO()}.csv`, "﻿" + ["Дата;Тип;Категория;Проект;Сумма;Комментарий", ...rows].join("\r\n"));
   }
   else if (a === "import") $("#fileIn").click();
   else if (a === "reset") {
-    if (await askConfirm("Удалить все операции, категории и бюджеты? Отменить это будет нельзя.", "Удалить всё")) {
+    if (await askConfirm("Удалить все операции, платежи, конверты и бюджеты? Отменить это будет нельзя.", "Удалить всё")) {
       replaceAll(defaultProfile(), []); toast("Все данные удалены.");
     }
   }
 });
 $("#sheet").addEventListener("mousedown", (e) => { if (e.target === e.currentTarget) closeSheet(); });
+$("#formSheet").addEventListener("mousedown", (e) => { if (e.target === e.currentTarget) closeForm(); });
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!$("#dialog").hidden) $("#dialogCancel").click();
+  else if (!$("#formSheet").hidden) closeForm();
   else if (!$("#sheet").hidden) closeSheet();
 });
 $("#fCat").addEventListener("change", (e) => { ui.fCat = e.target.value; renderOps(); });
 $("#fQuery").addEventListener("input", (e) => { ui.query = e.target.value; renderOps(); });
 
-// Settings & budgets: commit text edits when the field loses focus or on Enter.
+// Settings, budgets and plan parameters: commit text edits when the field loses focus or on Enter.
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target.matches("[data-budget], [data-cat-name], #currency")) e.target.blur();
+  if (e.key === "Enter" && e.target.matches("[data-budget], [data-cat-name], #currency, #pLiving, #pBuffer, #pOpening")) e.target.blur();
 });
 document.addEventListener("change", (e) => {
   const t = e.target;
@@ -878,6 +1328,11 @@ document.addEventListener("change", (e) => {
   } else if (t.id === "currency") {
     const v = t.value.trim() || "₸";
     if (v !== app.profile.currency) updateProfile((p) => (p.currency = v)); else t.value = v;
+  } else if (t.id === "pLiving" || t.id === "pBuffer" || t.id === "pOpening") {
+    const key = { pLiving: "living", pBuffer: "bufferMonths", pOpening: "openingFree" }[t.id];
+    const v = t.value.trim() ? parseAmount(t.value) : key === "bufferMonths" ? 1 : 0;
+    if (!(v >= 0) || (key === "bufferMonths" && v > 12)) { toast(key === "bufferMonths" ? "Буфер — от 0 до 12 месяцев." : "Введи сумму числом, например 250 000."); return; }
+    if (v !== app.profile[key]) updateProfile((p) => (p[key] = v)); else renderAll();
   }
 });
 document.addEventListener("submit", (e) => {
